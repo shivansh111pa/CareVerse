@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getDashboardPath, getProfile } from "@/lib/auth/session";
@@ -134,6 +135,7 @@ export async function logoutAction(): Promise<void> {
   if (supabase) {
     await supabase.auth.signOut();
   }
+  revalidatePath("/", "layout");
   redirect("/");
 }
 

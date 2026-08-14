@@ -1,47 +1,33 @@
-import { DashboardStatCard } from "@/components/dashboard/shared/DashboardStatCard";
-
-/** Swap in real SOS query when the alerts module ships. */
-export function PendingSosCard() {
-  return (
-    <DashboardStatCard
-      label="Pending SOS"
-      value="—"
-      hint="Emergency alerts module coming soon"
-      accent="coral"
-    />
-  );
-}
-
-/** Swap in real prescription count when the Rx module ships. */
-export function PrescriptionsWeekCard() {
-  return (
-    <DashboardStatCard
-      label="Prescriptions this week"
-      value="—"
-      hint="Weekly Rx totals will appear here"
-      accent="violet"
-    />
-  );
-}
-
-/** Swap in real patient count when the patients module ships. */
-export function TotalPatientsCard() {
-  return (
-    <DashboardStatCard
-      label="Total patients"
-      value="—"
-      hint="Patient registry module coming soon"
-      accent="aqua"
-    />
-  );
-}
-
 export function DoctorStatCards() {
   return (
-    <div className="dashboard-stat-grid">
-      <PendingSosCard />
-      <PrescriptionsWeekCard />
-      <TotalPatientsCard />
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem" }}>
+      {/* Total Patients */}
+      <div className="glass-panel" style={{ padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+        <h3 style={{ fontSize: "0.875rem", fontWeight: 500 }}>Total Patients</h3>
+        <p className="font-display" style={{ fontSize: "2rem", fontWeight: 700, margin: "0.5rem 0" }}>3,850</p>
+        <p style={{ fontSize: "0.8125rem", color: "var(--accent-aqua)" }}>+2.1%</p>
+      </div>
+
+      {/* Today's Appointments */}
+      <div className="glass-panel" style={{ padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+        <h3 style={{ fontSize: "0.875rem", fontWeight: 500 }}>Today&apos;s Appointments</h3>
+        <p className="font-display" style={{ fontSize: "2rem", fontWeight: 700, margin: "0.5rem 0" }}>14</p>
+        <p style={{ fontSize: "0.8125rem", color: "var(--text-muted)" }}>Scheduled</p>
+      </div>
+
+      {/* New Patients */}
+      <div className="glass-panel" style={{ padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+        <h3 style={{ fontSize: "0.875rem", fontWeight: 500 }}>New Patients</h3>
+        <p className="font-display" style={{ fontSize: "2rem", fontWeight: 700, margin: "0.5rem 0" }}>32</p>
+        <p style={{ fontSize: "0.8125rem", color: "var(--text-muted)" }}>this week</p>
+      </div>
+
+      {/* Revenue */}
+      <div className="glass-panel" style={{ padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+        <h3 style={{ fontSize: "0.875rem", fontWeight: 500 }}>Revenue</h3>
+        <p className="font-display" style={{ fontSize: "2rem", fontWeight: 700, margin: "0.5rem 0" }}>$18,740</p>
+        <p style={{ fontSize: "0.8125rem", color: "var(--accent-aqua)" }}>+5.3%</p>
+      </div>
     </div>
   );
 }

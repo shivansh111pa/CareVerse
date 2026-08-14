@@ -8,18 +8,21 @@ export interface DashboardNavItem {
 }
 
 export const DOCTOR_NAV: DashboardNavItem[] = [
-  { label: "Overview", href: "/dashboard/doctor", anchor: true },
-  { label: "Today's schedule", href: "/dashboard/doctor#appointments", anchor: true },
+  { label: "Home", href: "/dashboard/doctor", anchor: true },
   { label: "Patients", href: "/dashboard/doctor/patients" },
-  { label: "Prescriptions", href: "/dashboard/doctor/prescriptions" },
-  { label: "Reports", href: "/dashboard/doctor/reports" },
+  { label: "Appointments", href: "/dashboard/doctor/appointments" },
+  { label: "Analytics", href: "/dashboard/doctor/analytics" },
+  { label: "Messages", href: "/dashboard/doctor/messages" },
+  { label: "Settings", href: "/dashboard/doctor/settings" },
 ];
 
 export const PATIENT_NAV: DashboardNavItem[] = [
-  { label: "Overview", href: "/dashboard/patient", anchor: true },
+  { label: "Dashboard", href: "/dashboard/patient", anchor: true },
   { label: "Appointments", href: "/dashboard/patient/appointments" },
+  { label: "Health Records", href: "/dashboard/patient/records" },
   { label: "Prescriptions", href: "/dashboard/patient/prescriptions" },
-  { label: "Health history", href: "/dashboard/patient/history" },
+  { label: "Messages", href: "/dashboard/patient/messages" },
+  { label: "Settings", href: "/dashboard/patient/settings" },
 ];
 
 export function getNavForRole(role: UserRole): DashboardNavItem[] {
