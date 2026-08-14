@@ -42,7 +42,7 @@ export default async function PatientDashboardPage() {
           <div className="glass-panel" style={{ padding: "1.5rem", background: "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 100%)", position: "relative", overflow: "hidden" }}>
             <h2 style={{ fontSize: "1.5rem", fontWeight: 600, marginBottom: "0.5rem" }}>Good Morning, {firstName}!</h2>
             <p style={{ color: "var(--text-muted)", fontSize: "0.875rem", lineHeight: 1.5, maxWidth: "80%" }}>
-              "Wellness is the complete integration of body, mind, and spirit." <br/>
+              &quot;Wellness is the complete integration of body, mind, and spirit.&quot; <br/>
               Have a healthy and productive day.
             </p>
           </div>
