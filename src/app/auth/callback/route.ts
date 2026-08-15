@@ -13,6 +13,23 @@ export async function GET(request: Request) {
     }
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const adminSupabase = (await import("@supabase/supabase-js")).createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY!
+        );
+        const { data: profile } = await adminSupabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single();
+        
+        if (profile) {
+          const dest = profile.role === "doctor" ? "/dashboard/doctor" : "/dashboard/patient";
+          return NextResponse.redirect(`${origin}${dest}`);
+        }
+      }
       return NextResponse.redirect(`${origin}${next}`);
     }
   }

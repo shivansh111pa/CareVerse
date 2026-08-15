@@ -1,5 +1,12 @@
 -- CareVerse: profiles table, auto-insert trigger, and RLS policies
 
+-- Clean up existing objects so the script can be re-run safely
+drop trigger if exists on_auth_user_created on auth.users cascade;
+drop function if exists public.handle_new_user() cascade;
+drop function if exists public.get_my_role() cascade;
+drop table if exists public.profiles cascade;
+drop type if exists public.user_role cascade;
+
 -- ---------------------------------------------------------------------------
 -- Custom types
 -- ---------------------------------------------------------------------------
@@ -44,6 +51,21 @@ create trigger on_auth_user_created
   execute function public.handle_new_user();
 
 -- ---------------------------------------------------------------------------
+-- Helper: resolve role for middleware (optional RPC, used server-side)
+-- ---------------------------------------------------------------------------
+create or replace function public.get_my_role()
+returns public.user_role
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select role from public.profiles where id = auth.uid();
+$$;
+
+grant execute on function public.get_my_role() to authenticated;
+
+-- ---------------------------------------------------------------------------
 -- Row Level Security
 -- ---------------------------------------------------------------------------
 alter table public.profiles enable row level security;
@@ -75,18 +97,3 @@ create policy "Users can update own profile"
 -- Prevent authenticated users from changing their own role via client updates.
 -- Service role / migrations can still set role (e.g. seed script).
 revoke update (role) on public.profiles from authenticated;
-
--- ---------------------------------------------------------------------------
--- Helper: resolve role for middleware (optional RPC, used server-side)
--- ---------------------------------------------------------------------------
-create or replace function public.get_my_role()
-returns public.user_role
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select role from public.profiles where id = auth.uid();
-$$;
-
-grant execute on function public.get_my_role() to authenticated;

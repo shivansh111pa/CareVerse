@@ -197,3 +197,27 @@ export async function updatePasswordAction(
 
   redirect("/?auth=login");
 }
+
+export async function googleSignInAction(): Promise<AuthFormState> {
+  const supabase = await createClient();
+  if (!supabase) {
+    return { error: getSupabaseConfigMessage() };
+  }
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${getSiteUrl()}/auth/callback`,
+    },
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  if (data.url) {
+    redirect(data.url);
+  }
+
+  return { error: "Could not initialize Google sign-in" };
+}
