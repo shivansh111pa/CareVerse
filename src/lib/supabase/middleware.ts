@@ -51,15 +51,10 @@ export async function updateSession(request: NextRequest) {
   const isPatientRoute = pathname.startsWith("/dashboard/patient");
   const isLanding = pathname === "/";
 
-  // Resolve role from profiles when authenticated
+  // Resolve role from JWT token instantly (Custom Claims)
   let role: "patient" | "doctor" | null = null;
   if (user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-    role = (profile as { role: "patient" | "doctor" } | null)?.role ?? null;
+    role = user.app_metadata?.role as "patient" | "doctor" | undefined ?? null;
   }
 
   // Signed-in user on landing → dashboard
