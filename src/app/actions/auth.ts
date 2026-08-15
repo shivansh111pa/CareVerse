@@ -198,10 +198,10 @@ export async function updatePasswordAction(
   redirect("/?auth=login");
 }
 
-export async function googleSignInAction(): Promise<AuthFormState> {
+export async function googleSignInAction(): Promise<void> {
   const supabase = await createClient();
   if (!supabase) {
-    return { error: getSupabaseConfigMessage() };
+    redirect("/?auth=login&error=supabase_not_configured");
   }
 
   const { data, error } = await supabase.auth.signInWithOAuth({
@@ -212,12 +212,12 @@ export async function googleSignInAction(): Promise<AuthFormState> {
   });
 
   if (error) {
-    return { error: error.message };
+    redirect("/?auth=login&error=google_signin_failed");
   }
 
   if (data.url) {
     redirect(data.url);
   }
 
-  return { error: "Could not initialize Google sign-in" };
+  redirect("/?auth=login&error=google_signin_failed");
 }
