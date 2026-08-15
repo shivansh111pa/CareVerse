@@ -1,6 +1,6 @@
 export function DoctorStatCards() {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem" }}>
+    <div className="stats-grid">
       {/* Total Patients */}
       <div className="glass-panel" style={{ padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
         <h3 style={{ fontSize: "0.875rem", fontWeight: 500 }}>Total Patients</h3>

@@ -19,8 +19,8 @@ export default async function DoctorDashboardPage() {
   return (
     <div className="dashboard-page" style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
       {/* Top Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ position: "relative", width: "400px" }}>
+      <div className="responsive-flex-col" style={{ gap: "1rem" }}>
+        <div style={{ position: "relative", width: "100%", maxWidth: "400px" }}>
           <input 
             type="text" 
             placeholder="Search patients, records..." 
@@ -61,7 +61,7 @@ export default async function DoctorDashboardPage() {
       <DoctorStatCards />
 
       {/* Chart & List Grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: "1.5rem" }}>
+      <div className="dashboard-grid">
         <PatientVisitsChart />
         <TodayAppointmentsList doctorId={profile.id} />
       </div>

@@ -298,10 +298,7 @@ export function AuthPanel() {
       >
         <LiquidGlassLayers />
         <div className="liquid-glass__content">
-        <p className="auth-portal-note text-muted">
-          One portal for patients and doctors — sign in and we&apos;ll take you to
-          the right dashboard.
-        </p>
+
         {!showReset ? (
           <>
             <div

@@ -11,7 +11,7 @@ export default async function PatientDashboardPage() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", height: "100%", width: "100%", maxWidth: "1200px", margin: "0 auto" }}>
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+      <div className="responsive-header">
         <div>
           <p style={{ fontSize: "0.875rem", color: "var(--text-muted)", marginBottom: "0.25rem" }}>
             Welcome, {profile.full_name}
@@ -33,7 +33,7 @@ export default async function PatientDashboardPage() {
       </div>
 
       {/* Grid Layout */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
+      <div className="dashboard-grid">
         
         {/* Left Column */}
         <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
@@ -48,7 +48,7 @@ export default async function PatientDashboardPage() {
           </div>
 
           {/* Sub-grid for Next Appt and Prescriptions */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
+          <div className="dashboard-grid">
             
             {/* Next Appointment */}
             <div className="glass-panel" style={{ padding: "1.5rem", display: "flex", flexDirection: "column" }}>
@@ -137,7 +137,7 @@ export default async function PatientDashboardPage() {
             </div>
           </div>
 
-          <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "1rem" }}>
+          <div className="responsive-flex-col" style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "1rem", gap: "1.5rem" }}>
             <div>
               <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.25rem" }}>Heart Rate</div>
               <div style={{ fontSize: "1.25rem", fontWeight: 600 }}>82 <span style={{ fontSize: "0.75rem", fontWeight: 400 }}>bpm</span></div>
@@ -158,7 +158,8 @@ export default async function PatientDashboardPage() {
       <div className="glass-panel" style={{ padding: "1.5rem" }}>
         <h3 style={{ fontSize: "1rem", fontWeight: 500, marginBottom: "1rem" }}>Past Visits</h3>
         
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
+        <div className="table-responsive">
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem", minWidth: "600px" }}>
           <thead>
             <tr style={{ color: "var(--text-muted)", borderBottom: "1px solid rgba(255,255,255,0.1)", textAlign: "left" }}>
               <th style={{ padding: "0.75rem 0", fontWeight: 400 }}>Visit Date</th>
@@ -200,7 +201,8 @@ export default async function PatientDashboardPage() {
               </td>
             </tr>
           </tbody>
-        </table>
+          </table>
+        </div>
       </div>
 
     </div>
