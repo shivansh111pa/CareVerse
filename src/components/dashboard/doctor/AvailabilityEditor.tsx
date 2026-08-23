@@ -127,7 +127,7 @@ export function AvailabilityEditor({ doctorId }: { doctorId: string }) {
     });
 
     if (toInsert.length > 0) {
-      await supabase.from("availability_rules").insert(toInsert);
+      await supabase.from("availability_rules").insert(toInsert as any);
     }
     alert("Weekly schedule saved!");
   };
@@ -164,7 +164,7 @@ export function AvailabilityEditor({ doctorId }: { doctorId: string }) {
       is_closed: exClosed,
       custom_start: exClosed ? null : exStart,
       custom_end: exClosed ? null : exEnd
-    }).select().single();
+    } as any).select().single();
 
     if (data) {
       setExceptions([...exceptions, data]);
