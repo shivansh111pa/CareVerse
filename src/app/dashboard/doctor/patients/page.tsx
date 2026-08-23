@@ -1,19 +1,66 @@
 import { getCurrentProfile } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function PatientsPage() {
   const profile = await getCurrentProfile();
   if (!profile || profile.role !== "doctor") redirect("/?auth=login");
 
-  const mockPatients = [
-    { id: "P1", name: "Liam Nguyen", age: 34, lastVisit: "Oct 14, 2024", nextAppt: "Oct 26, 2024 (09:00 AM)", email: "liam.n@example.com", phone: "(555) 123-4567" },
-    { id: "P2", name: "Isabella Rossi", age: 28, lastVisit: "Oct 2, 2024", nextAppt: "Oct 26, 2024 (10:15 AM)", email: "i.rossi@example.com", phone: "(555) 987-6543" },
-    { id: "P3", name: "David Kim", age: 45, lastVisit: "Sep 15, 2024", nextAppt: "Oct 26, 2024 (11:30 AM)", email: "dkim80@example.com", phone: "(555) 456-7890" },
-    { id: "P4", name: "Sofia Garcia", age: 31, lastVisit: "Aug 20, 2024", nextAppt: "Oct 26, 2024 (01:45 PM)", email: "s.garcia@example.com", phone: "(555) 222-3333" },
-    { id: "P5", name: "Marcus Johnson", age: 52, lastVisit: "Oct 25, 2024", nextAppt: "None", email: "mjohnson@example.com", phone: "(555) 777-8888" },
-    { id: "P6", name: "Emma Wilson", age: 24, lastVisit: "Jul 10, 2024", nextAppt: "Nov 5, 2024 (02:00 PM)", email: "emma.w@example.com", phone: "(555) 444-5555" },
-  ];
+  const supabase = await createClient();
+  let patients: any[] = [];
+
+  if (supabase) {
+    const { data: appointments } = await supabase
+      .from("appointments")
+      .select(`
+        patient_id,
+        start_time,
+        profiles!appointments_patient_id_fkey (
+          id,
+          full_name,
+          email,
+          phone
+        )
+      `)
+      .eq("doctor_id", profile.id)
+      .order("start_time", { ascending: false });
+
+    if (appointments) {
+      // Deduplicate by patient_id
+      const patientMap = new Map();
+      appointments.forEach((appt: any) => {
+        if (!appt.profiles) return;
+        
+        if (!patientMap.has(appt.patient_id)) {
+          patientMap.set(appt.patient_id, {
+            id: appt.profiles.id,
+            name: appt.profiles.full_name || "Unknown Patient",
+            age: "-", // Age not implemented in profile schema yet
+            email: appt.profiles.email || "No email",
+            phone: appt.profiles.phone || "No phone",
+            lastVisit: new Date(appt.start_time) < new Date() ? new Date(appt.start_time).toLocaleDateString() : "None",
+            nextAppt: new Date(appt.start_time) >= new Date() ? new Date(appt.start_time).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : "None",
+            _latestAppt: new Date(appt.start_time)
+          });
+        } else {
+          // Update lastVisit / nextAppt logic if needed
+          const p = patientMap.get(appt.patient_id);
+          const apptDate = new Date(appt.start_time);
+          const now = new Date();
+          
+          if (apptDate < now && (p.lastVisit === "None" || apptDate > new Date(p.lastVisit))) {
+            p.lastVisit = apptDate.toLocaleDateString();
+          }
+          if (apptDate >= now && (p.nextAppt === "None" || apptDate < new Date(p._latestAppt))) {
+            p.nextAppt = apptDate.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+            p._latestAppt = apptDate;
+          }
+        }
+      });
+      patients = Array.from(patientMap.values());
+    }
+  }
 
   return (
     <div className="dashboard-page" style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
@@ -62,12 +109,19 @@ export default async function PatientsPage() {
               </tr>
             </thead>
             <tbody>
-              {mockPatients.map((patient) => (
+              {patients.length === 0 && (
+                <tr>
+                  <td colSpan={5} style={{ padding: "2rem", textAlign: "center", color: "var(--text-muted)" }}>
+                    No patients found. Patients will appear here once they book an appointment with you.
+                  </td>
+                </tr>
+              )}
+              {patients.map((patient) => (
                 <tr key={patient.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", transition: "background 0.2s" }} className="hover-row">
                   <td style={{ padding: "1rem 1.5rem" }}>
                     <Link href={`/dashboard/doctor/patients/${patient.id}`} style={{ display: "flex", alignItems: "center", gap: "1rem", textDecoration: "none", color: "inherit" }}>
                       <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "var(--accent-aqua)", color: "#000", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", fontSize: "1.25rem" }}>
-                        {patient.name.charAt(0)}
+                        {patient.name.charAt(0).toUpperCase()}
                       </div>
                       <div>
                         <div style={{ fontWeight: 600, fontSize: "1rem" }}>{patient.name}</div>

@@ -11,6 +11,7 @@ export const DOCTOR_NAV: DashboardNavItem[] = [
   { label: "Home", href: "/dashboard/doctor", anchor: true },
   { label: "Patients", href: "/dashboard/doctor/patients" },
   { label: "Appointments", href: "/dashboard/doctor/appointments" },
+  { label: "Availability", href: "/dashboard/doctor/availability" },
   { label: "Analytics", href: "/dashboard/doctor/analytics" },
   { label: "Messages", href: "/dashboard/doctor/messages" },
   { label: "Settings", href: "/dashboard/doctor/settings" },

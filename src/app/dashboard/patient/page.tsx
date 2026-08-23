@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentProfile } from "@/lib/auth/session";
+import { NextAppointmentCard } from "@/components/dashboard/patient/NextAppointmentCard";
 
 export default async function PatientDashboardPage() {
   const profile = await getCurrentProfile();
@@ -12,14 +13,20 @@ export default async function PatientDashboardPage() {
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", height: "100%", width: "100%", maxWidth: "1200px", margin: "0 auto" }}>
       {/* Header */}
       <div className="responsive-header">
+        <header id="overview" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "1rem" }}>
         <div>
-          <p style={{ fontSize: "0.875rem", color: "var(--text-muted)", marginBottom: "0.25rem" }}>
-            Welcome, {profile.full_name}
-          </p>
-          <h1 className="font-display" style={{ fontSize: "2rem", margin: 0 }}>
-            Patient Dashboard
+          <h1 className="font-display dashboard-page__title" style={{ fontSize: "2rem", marginBottom: "0.25rem" }}>
+            Welcome back, {profile.full_name?.split(" ")[0]}!
           </h1>
+          <p className="text-muted dashboard-page__lead">
+            Here is your daily health summary and upcoming schedule.
+          </p>
         </div>
+        
+        <Link href="/dashboard/patient/appointments/book" className="btn" style={{ padding: "0.75rem 1.5rem", borderRadius: "99px", background: "var(--accent-aqua)", color: "#000", fontWeight: 600, border: "none", textDecoration: "none" }}>
+          + Book Appointment
+        </Link>
+      </header>
         <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
           <span style={{ fontSize: "1.25rem", cursor: "pointer", color: "var(--text-muted)" }}>🔔</span>
           <span style={{ fontSize: "1.25rem", cursor: "pointer", color: "var(--text-muted)" }}>💬</span>
@@ -51,27 +58,7 @@ export default async function PatientDashboardPage() {
           <div className="dashboard-grid">
             
             {/* Next Appointment */}
-            <div className="glass-panel" style={{ padding: "1.5rem", display: "flex", flexDirection: "column" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "1rem" }}>
-                <h3 style={{ fontSize: "0.875rem", fontWeight: 500 }}>Next Appointment</h3>
-              </div>
-              <h4 style={{ fontSize: "1.125rem", fontWeight: 600, marginBottom: "0.25rem" }}>Telehealth Consult</h4>
-              <p style={{ color: "var(--text-muted)", fontSize: "0.875rem", marginBottom: "1rem" }}>Dr. Emily Vance</p>
-              
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--text-muted)", fontSize: "0.75rem", marginBottom: "1.5rem" }}>
-                <span>🕒</span> Today @ 2:00 PM PST
-              </div>
-              
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "auto" }}>
-                <button disabled className="btn" style={{ padding: "0.5rem 1rem", fontSize: "0.875rem", borderRadius: "99px", background: "var(--accent-aqua)", color: "#000", fontWeight: 600, border: "none" }}>
-                  🎥 Video Call
-                </button>
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: "0.625rem", color: "var(--text-muted)" }}>Countdown</div>
-                  <div style={{ fontSize: "0.875rem", fontWeight: 500 }}>00 min 80s</div>
-                </div>
-              </div>
-            </div>
+            <NextAppointmentCard patientId={profile.id} />
 
             {/* Recent Prescriptions */}
             <div className="glass-panel" style={{ padding: "1.5rem" }}>
@@ -81,27 +68,7 @@ export default async function PatientDashboardPage() {
               </div>
               
               <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div>
-                    <div style={{ fontSize: "0.9375rem", fontWeight: 500 }}>Amoxicillin</div>
-                    <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Details, dosage, instructions</div>
-                  </div>
-                  <span style={{ color: "var(--text-muted)" }}>›</span>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div>
-                    <div style={{ fontSize: "0.9375rem", fontWeight: 500 }}>Lisinopril</div>
-                    <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Dosage, 7 mg, instructions</div>
-                  </div>
-                  <span style={{ color: "var(--text-muted)" }}>›</span>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div>
-                    <div style={{ fontSize: "0.9375rem", fontWeight: 500 }}>Metformin</div>
-                    <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Details, instructions</div>
-                  </div>
-                  <span style={{ color: "var(--text-muted)" }}>›</span>
-                </div>
+                <div style={{ fontSize: "0.875rem", color: "var(--text-muted)" }}>No recent prescriptions</div>
               </div>
             </div>
 
@@ -140,15 +107,15 @@ export default async function PatientDashboardPage() {
           <div className="responsive-flex-col" style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "1rem", gap: "1.5rem" }}>
             <div>
               <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.25rem" }}>Heart Rate</div>
-              <div style={{ fontSize: "1.25rem", fontWeight: 600 }}>82 <span style={{ fontSize: "0.75rem", fontWeight: 400 }}>bpm</span></div>
+              <div style={{ fontSize: "1.25rem", fontWeight: 600 }}>0 <span style={{ fontSize: "0.75rem", fontWeight: 400 }}>bpm</span></div>
             </div>
             <div>
               <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.25rem" }}>Blood Pressure</div>
-              <div style={{ fontSize: "1.25rem", fontWeight: 600 }}>118/76 <span style={{ fontSize: "0.75rem", fontWeight: 400 }}>mmHg</span></div>
+              <div style={{ fontSize: "1.25rem", fontWeight: 600 }}>0/0 <span style={{ fontSize: "0.75rem", fontWeight: 400 }}>mmHg</span></div>
             </div>
             <div>
               <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.25rem" }}>Steps</div>
-              <div style={{ fontSize: "1.25rem", fontWeight: 600 }}>7,850</div>
+              <div style={{ fontSize: "1.25rem", fontWeight: 600 }}>0</div>
             </div>
           </div>
         </div>
@@ -170,34 +137,9 @@ export default async function PatientDashboardPage() {
             </tr>
           </thead>
           <tbody>
-            <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-              <td style={{ padding: "1rem 0" }}>Oct 14</td>
-              <td>Check-up</td>
-              <td>Dr. Vance</td>
-              <td style={{ color: "var(--text-muted)" }}>Routine physical check-up</td>
-              <td style={{ textAlign: "right", display: "flex", gap: "1rem", justifyContent: "flex-end" }}>
-                <span style={{ color: "var(--accent-aqua)", cursor: "not-allowed" }}>↓ Download</span>
-                <span style={{ color: "var(--accent-aqua)", cursor: "not-allowed" }}>Details</span>
-              </td>
-            </tr>
-            <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-              <td style={{ padding: "1rem 0" }}>Oct 2</td>
-              <td>Cold/Flu</td>
-              <td>Dr. Miller</td>
-              <td style={{ color: "var(--text-muted)" }}>Prescription provided for flu</td>
-              <td style={{ textAlign: "right", display: "flex", gap: "1rem", justifyContent: "flex-end" }}>
-                <span style={{ color: "var(--accent-aqua)", cursor: "not-allowed" }}>↓ Download</span>
-                <span style={{ color: "var(--accent-aqua)", cursor: "not-allowed" }}>Details</span>
-              </td>
-            </tr>
             <tr>
-              <td style={{ padding: "1rem 0" }}>Sep 20</td>
-              <td>Physical</td>
-              <td>Dr. Vance</td>
-              <td style={{ color: "var(--text-muted)" }}>Annual sports physical</td>
-              <td style={{ textAlign: "right", display: "flex", gap: "1rem", justifyContent: "flex-end" }}>
-                <span style={{ color: "var(--accent-aqua)", cursor: "not-allowed" }}>↓ Download</span>
-                <span style={{ color: "var(--accent-aqua)", cursor: "not-allowed" }}>Details</span>
+              <td colSpan={5} style={{ padding: "1rem 0", textAlign: "center", color: "var(--text-muted)" }}>
+                No past visits found.
               </td>
             </tr>
           </tbody>

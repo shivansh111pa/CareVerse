@@ -1,23 +1,42 @@
 import { getCurrentProfile } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function PatientDetailPage({ params }: { params: { id: string } }) {
   const profile = await getCurrentProfile();
   if (!profile || profile.role !== "doctor") redirect("/?auth=login");
 
-  // In a real app, fetch patient details using params.id
+  const supabase = await createClient();
+  let patientProfile = null;
+
+  if (supabase) {
+    const { data } = await supabase.from("profiles").select("*").eq("id", params.id).single();
+    if (data) {
+      patientProfile = data;
+    }
+  }
+
+  if (!patientProfile) {
+    return (
+      <div className="dashboard-page">
+        <h2>Patient not found.</h2>
+        <Link href="/dashboard/doctor/patients">Back to Patients</Link>
+      </div>
+    );
+  }
+
   const patient = {
-    id: params.id,
-    name: "Liam Nguyen",
-    age: 34,
-    gender: "Male",
-    bloodType: "O+",
-    height: "5'10\"",
-    weight: "175 lbs",
-    phone: "(555) 123-4567",
-    email: "liam.n@example.com",
-    address: "123 Main St, Anytown, CA",
+    id: patientProfile.id,
+    name: patientProfile.full_name || "Unknown Patient",
+    age: "-",
+    gender: "Not specified",
+    bloodType: "Not specified",
+    height: "Not specified",
+    weight: "Not specified",
+    phone: patientProfile.phone || "No phone on file",
+    email: patientProfile.email || "No email on file",
+    address: "Not specified",
   };
 
   return (
@@ -30,11 +49,11 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
           <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: "var(--accent-aqua)", color: "#000", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", fontSize: "2rem" }}>
-            {patient.name.charAt(0)}
+            {patient.name.charAt(0).toUpperCase()}
           </div>
           <div>
             <h1 className="font-display" style={{ fontSize: "2rem", marginBottom: "0.25rem" }}>{patient.name}</h1>
-            <p className="text-muted" style={{ fontSize: "0.875rem" }}>ID: {patient.id} • {patient.age} yrs • {patient.gender}</p>
+            <p className="text-muted" style={{ fontSize: "0.875rem" }}>ID: {patient.id.substring(0,8)}... • {patient.age} yrs • {patient.gender}</p>
           </div>
         </div>
       </header>
@@ -87,9 +106,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
           <div className="glass-panel" style={{ padding: "1.5rem" }}>
             <h3 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "1rem" }}>Allergies & Conditions</h3>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-              <span style={{ padding: "0.25rem 0.75rem", background: "rgba(255, 99, 132, 0.1)", color: "rgba(255, 99, 132, 1)", border: "1px solid rgba(255, 99, 132, 0.2)", borderRadius: "99px", fontSize: "0.75rem", fontWeight: 600 }}>Penicillin</span>
-              <span style={{ padding: "0.25rem 0.75rem", background: "rgba(255, 255, 255, 0.05)", border: "1px solid rgba(255, 255, 255, 0.1)", borderRadius: "99px", fontSize: "0.75rem" }}>Hypertension</span>
-              <span style={{ padding: "0.25rem 0.75rem", background: "rgba(255, 255, 255, 0.05)", border: "1px solid rgba(255, 255, 255, 0.1)", borderRadius: "99px", fontSize: "0.75rem" }}>Asthma (Mild)</span>
+              <span style={{ fontSize: "0.875rem", color: "var(--text-muted)" }}>No allergies recorded yet.</span>
             </div>
           </div>
         </div>
@@ -103,11 +120,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
               <div style={{ background: "rgba(255,255,255,0.02)", padding: "1rem", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem", fontSize: "0.75rem", color: "var(--text-muted)" }}>
-                  <span>Oct 14, 2024</span>
-                  <span>Dr. Vance</span>
-                </div>
-                <p style={{ fontSize: "0.875rem", lineHeight: 1.5 }}>Patient reports feeling generally well. Blood pressure is slightly elevated. Recommended continuing current medication and increasing cardio exercise to 3x/week.</p>
+                <p style={{ fontSize: "0.875rem", color: "var(--text-muted)" }}>No clinical notes available.</p>
               </div>
             </div>
           </div>
