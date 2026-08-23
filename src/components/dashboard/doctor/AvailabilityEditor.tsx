@@ -77,7 +77,7 @@ export function AvailabilityEditor({ doctorId }: { doctorId: string }) {
           newActive[d.val] = false;
         });
         
-        rulesData.forEach(r => {
+        rulesData.forEach((r: any) => {
           newRules[r.weekday].push(r);
           newActive[r.weekday] = true;
         });
