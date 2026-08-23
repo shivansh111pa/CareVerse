@@ -8,7 +8,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
   if (!profile || profile.role !== "doctor") redirect("/?auth=login");
 
   const supabase = await createClient();
-  let patientProfile = null;
+  let patientProfile: any = null;
 
   if (supabase) {
     const { data } = await supabase.from("profiles").select("*").eq("id", params.id).single();
