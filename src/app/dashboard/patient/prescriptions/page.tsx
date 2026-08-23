@@ -1,14 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/lib/auth/AuthContext";
 
 export default function PrescriptionsPage() {
-  const { profile } = useAuth();
   const [expandedId, setExpandedId] = useState<string | null>(null);
-
-  // Fallback while loading
-  if (!profile && typeof window !== "undefined") return null;
 
   const mockPrescriptions = [
     {
