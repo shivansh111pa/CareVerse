@@ -6,7 +6,7 @@ export default async function MessagesPage() {
   if (!profile || profile.role !== "doctor") redirect("/?auth=login");
 
   const conversations = [
-    { id: "C1", name: "Liam Nguyen", lastMsg: "Thank you, doctor. I'll pick up the prescription today.", time: "10:24 AM", unread: true },
+    { id: "C1", name: "Liam Nguyen", lastMsg: "Thank you, doctor. I&apos;ll pick up the prescription today.", time: "10:24 AM", unread: true },
     { id: "C2", name: "Isabella Rossi", lastMsg: "Is it normal to have a slight fever?", time: "Yesterday", unread: false },
     { id: "C3", name: "David Kim", lastMsg: "Sounds good, see you then.", time: "Oct 24", unread: false },
   ];
@@ -126,7 +126,7 @@ export default async function MessagesPage() {
               </div>
               <div>
                 <div style={{ background: "rgba(255,255,255,0.05)", padding: "1rem", borderRadius: "0 16px 16px 16px", border: "1px solid rgba(255,255,255,0.1)", fontSize: "0.9375rem", lineHeight: 1.5 }}>
-                  Thank you, doctor. I'll pick up the prescription today.
+                  Thank you, doctor. I&apos;ll pick up the prescription today.
                 </div>
                 <div style={{ fontSize: "0.6875rem", color: "var(--text-muted)", marginTop: "0.25rem", marginLeft: "0.5rem" }}>10:24 AM</div>
               </div>

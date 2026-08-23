@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { NextAppointmentCard } from "@/components/dashboard/patient/NextAppointmentCard";
 

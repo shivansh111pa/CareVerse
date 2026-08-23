@@ -19,18 +19,18 @@ interface Exception {
   custom_end: string | null;
 }
 
+const daysOfWeek = [
+  { name: "Sunday", val: 0 },
+  { name: "Monday", val: 1 },
+  { name: "Tuesday", val: 2 },
+  { name: "Wednesday", val: 3 },
+  { name: "Thursday", val: 4 },
+  { name: "Friday", val: 5 },
+  { name: "Saturday", val: 6 },
+];
+
 export function AvailabilityEditor({ doctorId }: { doctorId: string }) {
   const supabase = createClient();
-  
-  const daysOfWeek = [
-    { name: "Sunday", val: 0 },
-    { name: "Monday", val: 1 },
-    { name: "Tuesday", val: 2 },
-    { name: "Wednesday", val: 3 },
-    { name: "Thursday", val: 4 },
-    { name: "Friday", val: 5 },
-    { name: "Saturday", val: 6 },
-  ];
 
   const [rules, setRules] = useState<Record<number, Rule[]>>({});
   const [activeDays, setActiveDays] = useState<Record<number, boolean>>({});
