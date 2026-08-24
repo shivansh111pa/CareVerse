@@ -251,27 +251,13 @@ export function BookAppointmentForm({ patientId }: BookAppointmentFormProps) {
         {availableSlots.length === 0 ? (
           <p style={{ color: "var(--text-muted)" }}>No available slots for this date.</p>
         ) : (
-          <select 
+          <input 
+            type="time"
             value={selectedSlot || ""} 
             onChange={e => setSelectedSlot(e.target.value)}
             className="glass-input" 
             style={{ borderRadius: "12px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "white", padding: "0.75rem" }}
-          >
-            <option value="" disabled style={{ color: "black" }}>Select a time</option>
-            {availableSlots.map((slot) => {
-              const [h, m] = slot.split(':');
-              const d = new Date();
-              d.setHours(parseInt(h, 10));
-              d.setMinutes(parseInt(m, 10));
-              const timeString = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-              
-              return (
-                <option key={slot} value={slot} style={{ color: "black" }}>
-                  {timeString}
-                </option>
-              );
-            })}
-          </select>
+          />
         )}
       </div>
 
