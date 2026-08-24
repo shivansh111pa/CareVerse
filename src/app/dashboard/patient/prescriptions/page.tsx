@@ -1,49 +1,53 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 export default function PrescriptionsPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const mockPrescriptions = [
-    {
-      id: "Rx1",
-      dateIssued: "Oct 14, 2024",
-      doctor: "Dr. Emily Vance",
-      status: "Active",
-      primaryMedicine: "Amoxicillin 500mg",
-      diagnosis: "Bacterial Sinusitis",
-      notes: "Take with food. Complete the full course even if feeling better.",
-      medicines: [
-        { name: "Amoxicillin", dosage: "500mg", frequency: "1 capsule 3 times a day", duration: "7 days" },
-        { name: "Ibuprofen", dosage: "400mg", frequency: "1 tablet every 6 hours as needed for pain/fever", duration: "3-5 days" }
-      ]
-    },
-    {
-      id: "Rx2",
-      dateIssued: "Sep 20, 2024",
-      doctor: "Dr. Miller",
-      status: "Active",
-      primaryMedicine: "Lisinopril 10mg",
-      diagnosis: "Hypertension",
-      notes: "Take once daily in the morning. Monitor blood pressure weekly.",
-      medicines: [
-        { name: "Lisinopril", dosage: "10mg", frequency: "1 tablet once a day", duration: "90 days" }
-      ]
-    },
-    {
-      id: "Rx3",
-      dateIssued: "Feb 10, 2024",
-      doctor: "Dr. Emily Vance",
-      status: "Completed",
-      primaryMedicine: "Azithromycin 250mg",
-      diagnosis: "Upper Respiratory Tract Infection",
-      notes: "Z-Pak. Take 2 tablets on day 1, then 1 tablet daily for 4 days.",
-      medicines: [
-        { name: "Azithromycin", dosage: "250mg", frequency: "As directed on pack", duration: "5 days" }
-      ]
-    }
-  ];
+  const [prescriptions, setPrescriptions] = useState<any[]>([]);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const fetchPrescriptions = async () => {
+      if (!supabase) return;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { data } = await supabase
+        .from('medical_records')
+        .select(`
+          id,
+          diagnosis,
+          notes,
+          prescription,
+          created_at,
+          profiles!medical_records_doctor_id_fkey (
+            full_name
+          )
+        `)
+        .eq('patient_id', session.user.id)
+        .not('prescription', 'is', null)
+        .neq('prescription', '')
+        .order('created_at', { ascending: false });
+
+      if (data) {
+        setPrescriptions((data as any[]).map(record => ({
+          id: record.id,
+          dateIssued: new Date(record.created_at).toLocaleDateString(),
+          doctor: "Dr. " + record.profiles?.full_name,
+          status: "Completed",
+          primaryMedicine: record.prescription.split('\n')[0] || "Prescription", // just use first line as title
+          diagnosis: record.diagnosis,
+          notes: record.notes,
+          rawPrescription: record.prescription
+        })));
+      }
+    };
+    
+    fetchPrescriptions();
+  }, [supabase]);
 
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
@@ -61,7 +65,7 @@ export default function PrescriptionsPage() {
       </header>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-        {mockPrescriptions.map((rx) => {
+        {prescriptions.map((rx) => {
           const isExpanded = expandedId === rx.id;
           
           return (
@@ -118,30 +122,11 @@ export default function PrescriptionsPage() {
                     </div>
                   </div>
 
-                  {/* Medicines Table */}
+                  {/* Prescription */}
                   <div style={{ marginTop: "2rem" }}>
                     <h4 style={{ fontSize: "0.875rem", fontWeight: 600, marginBottom: "1rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>Medications</h4>
-                    <div className="table-responsive">
-                      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
-                        <thead>
-                          <tr style={{ color: "var(--text-muted)", borderBottom: "1px solid rgba(255,255,255,0.1)", textAlign: "left" }}>
-                            <th style={{ padding: "0.5rem 0", fontWeight: 400 }}>Medicine</th>
-                            <th style={{ padding: "0.5rem 0", fontWeight: 400 }}>Dosage</th>
-                            <th style={{ padding: "0.5rem 0", fontWeight: 400 }}>Frequency</th>
-                            <th style={{ padding: "0.5rem 0", fontWeight: 400 }}>Duration</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {rx.medicines.map((med, idx) => (
-                            <tr key={idx} style={{ borderBottom: idx === rx.medicines.length - 1 ? "none" : "1px solid rgba(255,255,255,0.05)" }}>
-                              <td style={{ padding: "1rem 0", fontWeight: 500 }}>{med.name}</td>
-                              <td style={{ padding: "1rem 0" }}>{med.dosage}</td>
-                              <td style={{ padding: "1rem 0" }}>{med.frequency}</td>
-                              <td style={{ padding: "1rem 0" }}>{med.duration}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                    <div style={{ padding: "1rem", background: "rgba(255,255,255,0.02)", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.05)", fontSize: "0.9375rem", whiteSpace: "pre-wrap" }}>
+                      {rx.rawPrescription}
                     </div>
                   </div>
 

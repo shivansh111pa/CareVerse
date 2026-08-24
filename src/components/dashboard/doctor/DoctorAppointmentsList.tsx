@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { MedicalRecordModal } from "./MedicalRecordModal";
 
 interface Appointment {
   id: string;
@@ -9,6 +10,7 @@ interface Appointment {
   status: string;
   reason: string;
   mode: string;
+  patient_id: string;
   profiles: {
     full_name: string;
   };
@@ -19,6 +21,7 @@ export function DoctorAppointmentsList({ doctorId }: { doctorId: string }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Statuses");
   const [dateFilter, setDateFilter] = useState("");
+  const [selectedAppt, setSelectedAppt] = useState<Appointment | null>(null);
   const supabase = createClient();
 
   useEffect(() => {
@@ -33,6 +36,7 @@ export function DoctorAppointmentsList({ doctorId }: { doctorId: string }) {
           status,
           reason,
           mode,
+          patient_id,
           profiles!appointments_patient_id_fkey (
             full_name
           )
@@ -194,8 +198,12 @@ export function DoctorAppointmentsList({ doctorId }: { doctorId: string }) {
                           <option value="completed" style={{ color: "black" }}>Completed</option>
                           <option value="cancelled" style={{ color: "black" }}>Cancelled</option>
                         </select>
-                        <button disabled className="btn btn-ghost" style={{ padding: "0.375rem 1rem", fontSize: "0.8125rem", borderRadius: "99px", border: "1px solid rgba(255,255,255,0.2)" }}>
-                          Details
+                        <button 
+                          onClick={() => setSelectedAppt(appt)}
+                          className="btn btn-ghost" 
+                          style={{ padding: "0.375rem 1rem", fontSize: "0.8125rem", borderRadius: "99px", border: "1px solid rgba(255,255,255,0.2)" }}
+                        >
+                          Add Notes
                         </button>
                       </div>
                     </td>
@@ -206,6 +214,22 @@ export function DoctorAppointmentsList({ doctorId }: { doctorId: string }) {
           </table>
         </div>
       </div>
+
+      <MedicalRecordModal 
+        isOpen={!!selectedAppt}
+        onClose={() => setSelectedAppt(null)}
+        appointmentId={selectedAppt?.id || ""}
+        patientId={selectedAppt?.patient_id || ""}
+        doctorId={doctorId}
+        patientName={selectedAppt?.profiles?.full_name || ""}
+        reasonForVisit={selectedAppt?.reason || ""}
+        onComplete={() => {
+          // Trigger a re-fetch or optimistically update
+          setAppointments(appointments.map(a => 
+            a.id === selectedAppt?.id ? { ...a, status: 'completed' } : a
+          ));
+        }}
+      />
     </div>
   );
 }
