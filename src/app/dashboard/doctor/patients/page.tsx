@@ -21,7 +21,6 @@ export default async function PatientsPage() {
         profiles!appointments_patient_id_fkey (
           id,
           full_name,
-          email,
           phone
         )
       `)
