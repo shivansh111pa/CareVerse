@@ -251,36 +251,27 @@ export function BookAppointmentForm({ patientId }: BookAppointmentFormProps) {
         {availableSlots.length === 0 ? (
           <p style={{ color: "var(--text-muted)" }}>No available slots for this date.</p>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: "0.75rem" }}>
+          <select 
+            value={selectedSlot || ""} 
+            onChange={e => setSelectedSlot(e.target.value)}
+            className="glass-input" 
+            style={{ borderRadius: "12px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "white", padding: "0.75rem" }}
+          >
+            <option value="" disabled style={{ color: "black" }}>Select a time</option>
             {availableSlots.map((slot) => {
-              const isSelected = selectedSlot === slot;
+              const [h, m] = slot.split(':');
+              const d = new Date();
+              d.setHours(parseInt(h, 10));
+              d.setMinutes(parseInt(m, 10));
+              const timeString = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+              
               return (
-                <button
-                  key={slot}
-                  onClick={() => setSelectedSlot(slot)}
-                  style={{
-                    padding: "0.75rem",
-                    borderRadius: "12px",
-                    background: isSelected ? "rgba(255, 255, 255, 0.15)" : "rgba(255,255,255,0.05)",
-                    color: isSelected ? "var(--accent-aqua)" : "var(--text-bright)",
-                    border: isSelected ? "1px solid var(--accent-aqua)" : "1px solid rgba(255,255,255,0.1)",
-                    fontSize: "0.875rem",
-                    fontWeight: isSelected ? 600 : 400,
-                    cursor: "pointer",
-                    textAlign: "center"
-                  }}
-                >
-                  {(() => {
-                    const [h, m] = slot.split(':');
-                    const d = new Date();
-                    d.setHours(parseInt(h, 10));
-                    d.setMinutes(parseInt(m, 10));
-                    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                  })()}
-                </button>
+                <option key={slot} value={slot} style={{ color: "black" }}>
+                  {timeString}
+                </option>
               );
             })}
-          </div>
+          </select>
         )}
       </div>
 
