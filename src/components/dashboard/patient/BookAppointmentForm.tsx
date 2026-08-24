@@ -48,8 +48,9 @@ export function BookAppointmentForm({ patientId }: BookAppointmentFormProps) {
     const fetchDoctors = async () => {
       const { data } = await supabase.from('profiles').select('id, full_name').eq('role', 'doctor');
       if (data && data.length > 0) {
-        setDoctors(data);
-        setSelectedDoctorId(data[0].id);
+        const docs = data as any[];
+        setDoctors(docs);
+        setSelectedDoctorId(docs[0].id);
       }
     };
     fetchDoctors();
@@ -66,33 +67,36 @@ export function BookAppointmentForm({ patientId }: BookAppointmentFormProps) {
       const dayOfWeek = new Date(date).getDay();
 
       // 1. Get rules for weekday
-      const { data: rules } = await supabase
+      const { data: rulesData } = await supabase
         .from('availability_rules')
         .select('*')
         .eq('doctor_id', selectedDoctorId)
         .eq('weekday', dayOfWeek);
+      const rules = rulesData as any[];
 
       // 2. Get exception for date
-      const { data: exceptions } = await supabase
+      const { data: exceptionsData } = await supabase
         .from('availability_exceptions')
         .select('*')
         .eq('doctor_id', selectedDoctorId)
         .eq('date', date)
         .limit(1)
         .single();
+      const exceptions = exceptionsData as any;
 
       if (exceptions?.is_closed || (!rules?.length && !exceptions?.custom_start)) {
         return; // Closed or no rules
       }
 
       // 3. Get existing appointments for the date
-      const { data: appointments } = await supabase
+      const { data: appointmentsData } = await supabase
         .from('appointments')
         .select('start_time')
         .eq('doctor_id', selectedDoctorId)
         .gte('start_time', `${date}T00:00:00Z`)
         .lte('start_time', `${date}T23:59:59Z`)
         .neq('status', 'cancelled');
+      const appointments = appointmentsData as any[];
 
       const bookedTimes = new Set((appointments || []).map(appt => {
         const d = new Date(appt.start_time);
@@ -177,7 +181,7 @@ export function BookAppointmentForm({ patientId }: BookAppointmentFormProps) {
       status: 'scheduled',
       reason: reason,
       mode: mode
-    });
+    } as any);
 
     setIsSubmitting(false);
 

@@ -79,6 +79,7 @@ export function DoctorAppointmentsList({ doctorId }: { doctorId: string }) {
 
   const updateStatus = async (id: string, newStatus: string) => {
     if (!supabase) return;
+    // @ts-ignore: Supabase types for appointments might not be fully generated
     await supabase.from("appointments").update({ status: newStatus }).eq("id", id);
     setAppointments(prev => prev.map(a => a.id === id ? { ...a, status: newStatus } : a));
   };

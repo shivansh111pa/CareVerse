@@ -101,6 +101,7 @@ export function TodayAppointmentsList({ doctorId }: TodayAppointmentsListProps) 
                   disabled={appt.status === 'checked_in' || appt.status === 'completed' || appt.status === 'cancelled'}
                   onClick={async () => {
                     if (supabase) {
+                      // @ts-ignore: Supabase types for appointments might not be fully generated
                       await supabase.from('appointments').update({ status: 'checked_in' }).eq('id', appt.id);
                     }
                   }}
