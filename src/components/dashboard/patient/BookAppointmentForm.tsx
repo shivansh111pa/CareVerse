@@ -100,10 +100,11 @@ export function BookAppointmentForm({ patientId }: BookAppointmentFormProps) {
         .neq('status', 'cancelled');
       const appointments = appointmentsData as any[];
 
-      const bookedTimes = new Set((appointments || []).map(appt => {
+      const bookedRanges = (appointments || []).map(appt => {
         const d = new Date(appt.start_time);
-        return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
-      }));
+        const startMins = d.getHours() * 60 + d.getMinutes();
+        return { start: startMins, end: startMins + 30 }; // Block out 30 minutes per appointment
+      });
 
       // Determine time blocks
       const timeBlocks = [];
@@ -133,7 +134,7 @@ export function BookAppointmentForm({ patientId }: BookAppointmentFormProps) {
         let currentMinutes = startHour * 60 + startMin;
         const endMinutes = endHour * 60 + endMin;
 
-        while (currentMinutes + block.duration <= endMinutes) {
+        while (currentMinutes + 30 <= endMinutes) { // Ensure at least 30 mins left in block
           const h = Math.floor(currentMinutes / 60);
           const m = currentMinutes % 60;
           const timeStr = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
@@ -142,10 +143,15 @@ export function BookAppointmentForm({ patientId }: BookAppointmentFormProps) {
           const slotDate = new Date(`${date}T${timeStr}:00`);
           const now = new Date();
           
-          if (!bookedTimes.has(timeStr) && slotDate > now) {
+          // Check if this minute overlaps with any booked appointment
+          const isBooked = bookedRanges.some(r => currentMinutes >= r.start && currentMinutes < r.end);
+          
+          if (!isBooked && slotDate > now) {
             slots.push(timeStr);
           }
-          currentMinutes += block.duration;
+          
+          // Increment by 1 minute
+          currentMinutes += 1;
         }
       });
 
@@ -251,13 +257,27 @@ export function BookAppointmentForm({ patientId }: BookAppointmentFormProps) {
         {availableSlots.length === 0 ? (
           <p style={{ color: "var(--text-muted)" }}>No available slots for this date.</p>
         ) : (
-          <input 
-            type="time"
+          <select 
             value={selectedSlot || ""} 
             onChange={e => setSelectedSlot(e.target.value)}
             className="glass-input" 
             style={{ borderRadius: "12px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "white", padding: "0.75rem" }}
-          />
+          >
+            <option value="" disabled style={{ color: "black" }}>Select a time</option>
+            {availableSlots.map((slot) => {
+              const [h, m] = slot.split(':');
+              const d = new Date();
+              d.setHours(parseInt(h, 10));
+              d.setMinutes(parseInt(m, 10));
+              const timeString = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+              
+              return (
+                <option key={slot} value={slot} style={{ color: "black" }}>
+                  {timeString}
+                </option>
+              );
+            })}
+          </select>
         )}
       </div>
 
