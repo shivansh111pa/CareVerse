@@ -97,18 +97,23 @@ export function TodayAppointmentsList({ doctorId }: TodayAppointmentsListProps) 
                 <span style={{ fontSize: "0.75rem", color: appt.status === "confirmed" ? "var(--accent-aqua)" : "var(--accent-violet)" }}>
                   {appt.status.charAt(0).toUpperCase() + appt.status.slice(1)}
                 </span>
-                <button 
-                  disabled={appt.status === 'checked_in' || appt.status === 'completed' || appt.status === 'cancelled'}
-                  onClick={async () => {
+                <select 
+                  value={appt.status}
+                  onChange={async (e) => {
                     if (supabase) {
                       // @ts-ignore: Supabase types for appointments might not be fully generated
-                      await supabase.from('appointments').update({ status: 'checked_in' }).eq('id', appt.id);
+                      await supabase.from('appointments').update({ status: e.target.value }).eq('id', appt.id);
                     }
                   }}
-                  className="btn btn-ghost" 
-                  style={{ padding: "0.25rem 0.75rem", fontSize: "0.75rem", borderRadius: "99px", border: "1px solid rgba(255,255,255,0.12)", height: "auto" }}>
-                  {appt.status === 'checked_in' ? 'Checked In' : 'Check-In'}
-                </button>
+                  className="glass-input"
+                  style={{ padding: "0.25rem 0.5rem", fontSize: "0.75rem", borderRadius: "8px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "white" }}
+                >
+                  <option value="scheduled" style={{ color: "black" }}>Scheduled</option>
+                  <option value="confirmed" style={{ color: "black" }}>Confirmed</option>
+                  <option value="checked_in" style={{ color: "black" }}>Checked In</option>
+                  <option value="completed" style={{ color: "black" }}>Completed</option>
+                  <option value="cancelled" style={{ color: "black" }}>Cancelled</option>
+                </select>
               </div>
             </div>
           ))

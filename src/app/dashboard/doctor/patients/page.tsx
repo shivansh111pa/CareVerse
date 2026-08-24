@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 
+export const dynamic = 'force-dynamic';
+
 export default async function PatientsPage() {
   const profile = await getCurrentProfile();
   if (!profile || profile.role !== "doctor") redirect("/?auth=login");

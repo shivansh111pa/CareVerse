@@ -181,17 +181,21 @@ export function DoctorAppointmentsList({ doctorId }: { doctorId: string }) {
                       </span>
                     </td>
                     <td style={{ textAlign: "right" }}>
-                      <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end" }}>
+                      <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", alignItems: "center" }}>
+                        <select 
+                          value={appt.status}
+                          onChange={(e) => updateStatus(appt.id, e.target.value)}
+                          className="glass-input"
+                          style={{ padding: "0.375rem 0.75rem", fontSize: "0.8125rem", borderRadius: "8px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "white" }}
+                        >
+                          <option value="scheduled" style={{ color: "black" }}>Scheduled</option>
+                          <option value="confirmed" style={{ color: "black" }}>Confirmed</option>
+                          <option value="checked_in" style={{ color: "black" }}>Checked In</option>
+                          <option value="completed" style={{ color: "black" }}>Completed</option>
+                          <option value="cancelled" style={{ color: "black" }}>Cancelled</option>
+                        </select>
                         <button disabled className="btn btn-ghost" style={{ padding: "0.375rem 1rem", fontSize: "0.8125rem", borderRadius: "99px", border: "1px solid rgba(255,255,255,0.2)" }}>
                           Details
-                        </button>
-                        <button 
-                          disabled={appt.status === "cancelled" || appt.status === "completed" || appt.status === "checked_in"}
-                          onClick={() => updateStatus(appt.id, 'checked_in')}
-                          className="btn" 
-                          style={{ padding: "0.375rem 1rem", fontSize: "0.8125rem", borderRadius: "99px", background: "var(--accent-aqua)", color: "#000", fontWeight: 600, border: "none", opacity: appt.status === "cancelled" || appt.status === "completed" || appt.status === "checked_in" ? 0.5 : 1 }}
-                        >
-                          Check-In
                         </button>
                       </div>
                     </td>
