@@ -64,7 +64,9 @@ export function BookAppointmentForm({ patientId }: BookAppointmentFormProps) {
       setAvailableSlots([]);
       setSelectedSlot(null);
 
-      const dayOfWeek = new Date(date).getDay();
+      // Parse date safely in local time to avoid timezone offset issues (e.g., UTC midnight becoming previous day in US timezones)
+      const [year, month, day] = date.split('-');
+      const dayOfWeek = new Date(Number(year), Number(month) - 1, Number(day)).getDay();
 
       // 1. Get rules for weekday
       const { data: rulesData } = await supabase
