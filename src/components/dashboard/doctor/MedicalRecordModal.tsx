@@ -51,14 +51,14 @@ export function MedicalRecordModal({
 
     try {
       // Create medical record
-      const { error: recordError } = await supabase!.from('medical_records').insert({
+      const { error: recordError } = await (supabase as any).from('medical_records').insert({
         appointment_id: appointmentId,
         patient_id: patientId,
         doctor_id: doctorId,
         diagnosis,
         notes,
         prescription
-      } as any);
+      });
 
       if (recordError) {
         // If it's a unique constraint violation, they might have already created one
@@ -72,9 +72,9 @@ export function MedicalRecordModal({
       }
 
       // Update appointment status to completed
-      const { error: statusError } = await supabase!
+      const { error: statusError } = await (supabase as any)
         .from('appointments')
-        .update({ status: 'completed' } as any)
+        .update({ status: 'completed' })
         .eq('id', appointmentId);
 
       if (statusError) throw statusError;
