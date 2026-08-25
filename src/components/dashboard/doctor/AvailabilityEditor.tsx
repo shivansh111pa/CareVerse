@@ -56,13 +56,13 @@ export function AvailabilityEditor({ doctorId }: { doctorId: string }) {
         daysOfWeek.forEach(d => {
           if (d.val >= 1 && d.val <= 5) {
             newRules[d.val] = [
-              { weekday: d.val, start_time: "10:00", end_time: "13:00", slot_duration_minutes: 30 },
-              { weekday: d.val, start_time: "17:00", end_time: "22:00", slot_duration_minutes: 30 }
+              { weekday: d.val, start_time: "10:00", end_time: "13:00", slot_duration_minutes: 3 },
+              { weekday: d.val, start_time: "17:00", end_time: "22:00", slot_duration_minutes: 3 }
             ];
             newActive[d.val] = true;
           } else if (d.val === 6) {
             newRules[d.val] = [
-              { weekday: d.val, start_time: "10:00", end_time: "13:00", slot_duration_minutes: 30 }
+              { weekday: d.val, start_time: "10:00", end_time: "13:00", slot_duration_minutes: 3 }
             ];
             newActive[d.val] = true;
           } else {
@@ -85,10 +85,10 @@ export function AvailabilityEditor({ doctorId }: { doctorId: string }) {
         // Ensure every active day has at least one empty rule if it somehow got corrupted
         daysOfWeek.forEach(d => {
           if (newActive[d.val] && newRules[d.val].length === 0) {
-            newRules[d.val] = [{ weekday: d.val, start_time: "09:00", end_time: "17:00", slot_duration_minutes: 30 }];
+            newRules[d.val] = [{ weekday: d.val, start_time: "09:00", end_time: "17:00", slot_duration_minutes: 3 }];
           }
           if (!newActive[d.val] && newRules[d.val].length === 0) {
-            newRules[d.val] = [{ weekday: d.val, start_time: "09:00", end_time: "17:00", slot_duration_minutes: 30 }];
+            newRules[d.val] = [{ weekday: d.val, start_time: "09:00", end_time: "17:00", slot_duration_minutes: 3 }];
           }
         });
       }
@@ -120,7 +120,7 @@ export function AvailabilityEditor({ doctorId }: { doctorId: string }) {
             weekday: d.val,
             start_time: shift.start_time,
             end_time: shift.end_time,
-            slot_duration_minutes: 30
+            slot_duration_minutes: 3
           });
         });
       }
@@ -135,7 +135,7 @@ export function AvailabilityEditor({ doctorId }: { doctorId: string }) {
   const handleAddShift = (weekday: number) => {
     setRules(prev => ({
       ...prev,
-      [weekday]: [...prev[weekday], { weekday, start_time: "12:00", end_time: "13:00", slot_duration_minutes: 30 }]
+      [weekday]: [...prev[weekday], { weekday, start_time: "12:00", end_time: "13:00", slot_duration_minutes: 3 }]
     }));
   };
 

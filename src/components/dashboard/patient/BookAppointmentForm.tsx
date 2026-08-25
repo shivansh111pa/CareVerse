@@ -103,7 +103,7 @@ export function BookAppointmentForm({ patientId }: BookAppointmentFormProps) {
       const bookedRanges = (appointments || []).map(appt => {
         const d = new Date(appt.start_time);
         const startMins = d.getHours() * 60 + d.getMinutes();
-        return { start: startMins, end: startMins + 30 }; // Block out 30 minutes per appointment
+        return { start: startMins, end: startMins + 3 }; // Block out 3 minutes per appointment
       });
 
       // Determine time blocks
@@ -112,14 +112,14 @@ export function BookAppointmentForm({ patientId }: BookAppointmentFormProps) {
         timeBlocks.push({
           start_time: exceptions.custom_start,
           end_time: exceptions.custom_end,
-          duration: 30 // hardcoded default for exceptions if missing
+          duration: 3 // hardcoded default for exceptions if missing
         });
       } else if (rules) {
         rules.forEach(r => {
           timeBlocks.push({
             start_time: r.start_time,
             end_time: r.end_time,
-            duration: r.slot_duration_minutes || 30
+            duration: r.slot_duration_minutes || 3
           });
         });
       }
@@ -134,7 +134,7 @@ export function BookAppointmentForm({ patientId }: BookAppointmentFormProps) {
         let currentMinutes = startHour * 60 + startMin;
         const endMinutes = endHour * 60 + endMin;
 
-        while (currentMinutes + 30 <= endMinutes) { // Ensure at least 30 mins left in block
+        while (currentMinutes + 3 <= endMinutes) { // Ensure at least 3 mins left in block
           const h = Math.floor(currentMinutes / 60);
           const m = currentMinutes % 60;
           const timeStr = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
@@ -150,8 +150,8 @@ export function BookAppointmentForm({ patientId }: BookAppointmentFormProps) {
             slots.push(timeStr);
           }
           
-          // Increment by 1 minute
-          currentMinutes += 1;
+          // Increment by 3 minutes
+          currentMinutes += 3;
         }
       });
 
@@ -179,7 +179,7 @@ export function BookAppointmentForm({ patientId }: BookAppointmentFormProps) {
     // Create timestamp string in ISO format for timezone safety
     // Using local time to UTC depending on browser
     const startObj = new Date(`${date}T${selectedSlot}:00`);
-    const endObj = new Date(startObj.getTime() + 30 * 60000); // assume 30 min if we don't fetch duration again
+    const endObj = new Date(startObj.getTime() + 3 * 60000); // assume 3 min if we don't fetch duration again
 
     const { error } = await supabase.from('appointments').insert({
       doctor_id: selectedDoctorId,

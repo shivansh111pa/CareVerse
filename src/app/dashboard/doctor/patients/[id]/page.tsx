@@ -9,12 +9,28 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
 
   const supabase = await createClient();
   let patientProfile: any = null;
+  let medicalRecords: any[] = [];
+  let appointments: any[] = [];
 
   if (supabase) {
     const { data } = await supabase.from("profiles").select("*").eq("id", params.id).single();
     if (data) {
       patientProfile = data;
     }
+
+    const { data: recordsData } = await supabase
+      .from("medical_records")
+      .select("*")
+      .eq("patient_id", params.id)
+      .order("created_at", { ascending: false });
+    if (recordsData) medicalRecords = recordsData;
+
+    const { data: apptsData } = await supabase
+      .from("appointments")
+      .select("*")
+      .eq("patient_id", params.id)
+      .order("start_time", { ascending: false });
+    if (apptsData) appointments = apptsData;
   }
 
   if (!patientProfile) {
@@ -119,9 +135,53 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
               <button disabled className="btn btn-ghost" style={{ fontSize: "0.75rem", padding: "0.25rem 0.75rem", borderRadius: "99px", border: "1px solid rgba(255,255,255,0.2)" }}>+ Add Note</button>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-              <div style={{ background: "rgba(255,255,255,0.02)", padding: "1rem", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)" }}>
-                <p style={{ fontSize: "0.875rem", color: "var(--text-muted)" }}>No clinical notes available.</p>
-              </div>
+              {medicalRecords.length === 0 ? (
+                <div style={{ background: "rgba(255,255,255,0.02)", padding: "1rem", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)" }}>
+                  <p style={{ fontSize: "0.875rem", color: "var(--text-muted)" }}>No clinical notes available.</p>
+                </div>
+              ) : (
+                medicalRecords.map((record) => (
+                  <div key={record.id} style={{ background: "rgba(255,255,255,0.02)", padding: "1rem", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)" }}>
+                    <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.5rem" }}>
+                      {new Date(record.created_at).toLocaleDateString()}
+                    </div>
+                    <div style={{ fontWeight: 600, fontSize: "0.9375rem", marginBottom: "0.5rem" }}>
+                      Diagnosis: {record.diagnosis}
+                    </div>
+                    {record.prescription && (
+                      <div style={{ fontSize: "0.875rem", marginBottom: "0.5rem", color: "var(--accent-aqua)" }}>
+                        Rx: {record.prescription}
+                      </div>
+                    )}
+                    {record.notes && (
+                      <div style={{ fontSize: "0.875rem", color: "var(--text-bright)" }}>
+                        {record.notes}
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          <div className="glass-panel" style={{ padding: "1.5rem" }}>
+            <h3 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "1rem" }}>Recent Appointments</h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+              {appointments.length === 0 ? (
+                <p style={{ fontSize: "0.875rem", color: "var(--text-muted)" }}>No appointments found.</p>
+              ) : (
+                appointments.map((appt) => (
+                  <div key={appt.id} style={{ display: "flex", justifyContent: "space-between", paddingBottom: "0.5rem", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                    <div>
+                      <div style={{ fontSize: "0.875rem", fontWeight: 500 }}>{new Date(appt.start_time).toLocaleDateString()}</div>
+                      <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{new Date(appt.start_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                    </div>
+                    <div style={{ fontSize: "0.875rem", color: appt.status === 'scheduled' ? "var(--accent-aqua)" : "var(--text-muted)" }}>
+                      {appt.status}
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
