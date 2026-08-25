@@ -124,8 +124,6 @@ export function DoctorAppointmentsList({ doctorId }: { doctorId: string }) {
           >
             <option>All Statuses</option>
             <option>Scheduled</option>
-            <option>Confirmed</option>
-            <option>Checked_in</option>
             <option>Completed</option>
             <option>Cancelled</option>
           </select>
@@ -193,8 +191,6 @@ export function DoctorAppointmentsList({ doctorId }: { doctorId: string }) {
                           style={{ padding: "0.375rem 0.75rem", fontSize: "0.8125rem", borderRadius: "8px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "white" }}
                         >
                           <option value="scheduled" style={{ color: "black" }}>Scheduled</option>
-                          <option value="confirmed" style={{ color: "black" }}>Confirmed</option>
-                          <option value="checked_in" style={{ color: "black" }}>Checked In</option>
                           <option value="completed" style={{ color: "black" }}>Completed</option>
                           <option value="cancelled" style={{ color: "black" }}>Cancelled</option>
                         </select>

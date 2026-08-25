@@ -109,8 +109,6 @@ export function TodayAppointmentsList({ doctorId }: TodayAppointmentsListProps) 
                   style={{ padding: "0.25rem 0.5rem", fontSize: "0.75rem", borderRadius: "8px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "white" }}
                 >
                   <option value="scheduled" style={{ color: "black" }}>Scheduled</option>
-                  <option value="confirmed" style={{ color: "black" }}>Confirmed</option>
-                  <option value="checked_in" style={{ color: "black" }}>Checked In</option>
                   <option value="completed" style={{ color: "black" }}>Completed</option>
                   <option value="cancelled" style={{ color: "black" }}>Cancelled</option>
                 </select>
