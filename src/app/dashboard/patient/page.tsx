@@ -2,6 +2,10 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { NextAppointmentCard } from "@/components/dashboard/patient/NextAppointmentCard";
+import { createClient } from "@/lib/supabase/server";
+import { LogVitalsWrapper } from "@/components/dashboard/patient/LogVitalsWrapper";
+
+export const dynamic = 'force-dynamic';
 
 export default async function PatientDashboardPage() {
   const profile = await getCurrentProfile();
@@ -9,6 +13,46 @@ export default async function PatientDashboardPage() {
   if (profile.role === "doctor") redirect("/dashboard/doctor");
 
   const firstName = profile.full_name?.split(" ")[0] || "there";
+
+  const supabase = await createClient();
+  let latestVitals = { heart_rate: 0, blood_pressure_systolic: 0, blood_pressure_diastolic: 0, steps: 0 };
+  let recentPrescriptions: any[] = [];
+  let pastVisits: any[] = [];
+
+  if (supabase) {
+    // Fetch latest vitals
+    const { data: vitalsData } = await supabase
+      .from('vitals')
+      .select('*')
+      .eq('patient_id', profile.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+    
+    if (vitalsData) latestVitals = vitalsData;
+
+    // Fetch recent prescriptions (where prescription is not null)
+    const { data: rxData } = await supabase
+      .from('medical_records')
+      .select('id, prescription, created_at, profiles!medical_records_doctor_id_fkey(full_name)')
+      .eq('patient_id', profile.id)
+      .not('prescription', 'is', null)
+      .neq('prescription', '')
+      .order('created_at', { ascending: false })
+      .limit(3);
+    
+    if (rxData) recentPrescriptions = rxData;
+
+    // Fetch past visits
+    const { data: visitsData } = await supabase
+      .from('medical_records')
+      .select('id, diagnosis, created_at, appointments(reason), profiles!medical_records_doctor_id_fkey(full_name)')
+      .eq('patient_id', profile.id)
+      .order('created_at', { ascending: false })
+      .limit(5);
+
+    if (visitsData) pastVisits = visitsData;
+  }
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", height: "100%", width: "100%", maxWidth: "1200px", margin: "0 auto" }}>
@@ -69,7 +113,18 @@ export default async function PatientDashboardPage() {
               </div>
               
               <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                <div style={{ fontSize: "0.875rem", color: "var(--text-muted)" }}>No recent prescriptions</div>
+                {recentPrescriptions.length === 0 ? (
+                  <div style={{ fontSize: "0.875rem", color: "var(--text-muted)" }}>No recent prescriptions</div>
+                ) : (
+                  recentPrescriptions.map((rx) => (
+                    <div key={rx.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: "0.5rem" }}>
+                      <div>
+                        <div style={{ fontSize: "0.9375rem", fontWeight: 500 }}>{rx.prescription?.split('\n')[0] || "Prescription"}</div>
+                        <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Dr. {rx.profiles?.full_name} • {new Date(rx.created_at).toLocaleDateString()}</div>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
@@ -80,9 +135,7 @@ export default async function PatientDashboardPage() {
         <div className="glass-panel" style={{ padding: "1.5rem", display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
             <h3 style={{ fontSize: "1rem", fontWeight: 500 }}>Health Vitals</h3>
-            <select disabled style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "white", padding: "0.25rem 0.5rem", borderRadius: "4px", fontSize: "0.75rem" }}>
-              <option>Last 7 days</option>
-            </select>
+            <LogVitalsWrapper patientId={profile.id} />
           </div>
 
           <div style={{ flex: 1, position: "relative", minHeight: "200px", borderBottom: "1px solid rgba(255,255,255,0.1)", borderLeft: "1px solid rgba(255,255,255,0.1)", padding: "1rem 0 0 1rem", marginBottom: "2rem" }}>
@@ -108,15 +161,15 @@ export default async function PatientDashboardPage() {
           <div className="responsive-flex-col" style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "1rem", gap: "1.5rem" }}>
             <div>
               <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.25rem" }}>Heart Rate</div>
-              <div style={{ fontSize: "1.25rem", fontWeight: 600 }}>0 <span style={{ fontSize: "0.75rem", fontWeight: 400 }}>bpm</span></div>
+              <div style={{ fontSize: "1.25rem", fontWeight: 600 }}>{latestVitals.heart_rate || 0} <span style={{ fontSize: "0.75rem", fontWeight: 400 }}>bpm</span></div>
             </div>
             <div>
               <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.25rem" }}>Blood Pressure</div>
-              <div style={{ fontSize: "1.25rem", fontWeight: 600 }}>0/0 <span style={{ fontSize: "0.75rem", fontWeight: 400 }}>mmHg</span></div>
+              <div style={{ fontSize: "1.25rem", fontWeight: 600 }}>{latestVitals.blood_pressure_systolic || 0}/{latestVitals.blood_pressure_diastolic || 0} <span style={{ fontSize: "0.75rem", fontWeight: 400 }}>mmHg</span></div>
             </div>
             <div>
               <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.25rem" }}>Steps</div>
-              <div style={{ fontSize: "1.25rem", fontWeight: 600 }}>0</div>
+              <div style={{ fontSize: "1.25rem", fontWeight: 600 }}>{latestVitals.steps || 0}</div>
             </div>
           </div>
         </div>
@@ -138,11 +191,27 @@ export default async function PatientDashboardPage() {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td colSpan={5} style={{ padding: "1rem 0", textAlign: "center", color: "var(--text-muted)" }}>
-                No past visits found.
-              </td>
-            </tr>
+            {pastVisits.length === 0 ? (
+              <tr>
+                <td colSpan={5} style={{ padding: "1rem 0", textAlign: "center", color: "var(--text-muted)" }}>
+                  No past visits found.
+                </td>
+              </tr>
+            ) : (
+              pastVisits.map((visit) => (
+                <tr key={visit.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                  <td style={{ padding: "0.75rem 0" }}>{new Date(visit.created_at).toLocaleDateString()}</td>
+                  <td style={{ padding: "0.75rem 0" }}>{visit.appointments?.reason || "General"}</td>
+                  <td style={{ padding: "0.75rem 0" }}>Dr. {visit.profiles?.full_name}</td>
+                  <td style={{ padding: "0.75rem 0" }}>{visit.diagnosis}</td>
+                  <td style={{ padding: "0.75rem 0", textAlign: "right" }}>
+                    <Link href={`/dashboard/patient/records`} className="btn btn-ghost" style={{ padding: "0.25rem 0.75rem", fontSize: "0.75rem", borderRadius: "99px", border: "1px solid rgba(255,255,255,0.2)", textDecoration: "none" }}>
+                      Details
+                    </Link>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
           </table>
         </div>
