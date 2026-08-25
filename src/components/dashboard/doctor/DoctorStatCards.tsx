@@ -10,7 +10,7 @@ interface DoctorStatCardsProps {
 export function DoctorStatCards({ doctorId }: DoctorStatCardsProps) {
   const [todayCount, setTodayCount] = useState(0);
   const [totalPatients, setTotalPatients] = useState(0);
-  const [revenue, setRevenue] = useState(0);
+  const [revenue, setRevenue] = useState({ total: 0, cash: 0, upi: 0 });
   const supabase = createClient();
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export function DoctorStatCards({ doctorId }: DoctorStatCardsProps) {
       // Fetch all appointments to calculate unique patients and revenue
       const { data: allAppointments } = await (supabase as any)
         .from("appointments")
-        .select('patient_id, status')
+        .select('patient_id, status, payment_amount, payment_method')
         .eq("doctor_id", doctorId);
 
       if (allAppointments) {
@@ -46,9 +46,22 @@ export function DoctorStatCards({ doctorId }: DoctorStatCardsProps) {
         const uniquePatients = new Set(allAppointments.map((a: any) => a.patient_id));
         setTotalPatients(uniquePatients.size);
 
-        // Calculate Revenue (assuming ₹500 per completed appointment)
-        const completedCount = allAppointments.filter((a: any) => a.status === 'completed').length;
-        setRevenue(completedCount * 500);
+        // Calculate Revenue
+        let total = 0;
+        let cash = 0;
+        let upi = 0;
+
+        allAppointments.filter((a: any) => a.status === 'completed').forEach((a: any) => {
+          const amt = Number(a.payment_amount) || 0;
+          total += amt;
+          if (a.payment_method === 'upi') {
+            upi += amt;
+          } else {
+            cash += amt; // default to cash
+          }
+        });
+
+        setRevenue({ total, cash, upi });
       }
     };
 
@@ -101,8 +114,11 @@ export function DoctorStatCards({ doctorId }: DoctorStatCardsProps) {
       {/* Revenue */}
       <div className="glass-panel" style={{ padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
         <h3 style={{ fontSize: "0.875rem", fontWeight: 500 }}>Revenue</h3>
-        <p className="font-display" style={{ fontSize: "2rem", fontWeight: 700, margin: "0.5rem 0" }}>₹{revenue.toLocaleString()}</p>
-        <p style={{ fontSize: "0.8125rem", color: "var(--text-muted)" }}>From completed visits</p>
+        <p className="font-display" style={{ fontSize: "2rem", fontWeight: 700, margin: "0.5rem 0" }}>₹{revenue.total.toLocaleString()}</p>
+        <p style={{ fontSize: "0.8125rem", color: "var(--text-muted)", display: "flex", justifyContent: "space-between" }}>
+          <span>Cash: ₹{revenue.cash.toLocaleString()}</span>
+          <span>UPI: ₹{revenue.upi.toLocaleString()}</span>
+        </p>
       </div>
     </div>
   );

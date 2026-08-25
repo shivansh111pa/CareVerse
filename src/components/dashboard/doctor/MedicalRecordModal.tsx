@@ -27,6 +27,8 @@ export function MedicalRecordModal({
   const [diagnosis, setDiagnosis] = useState("");
   const [notes, setNotes] = useState("");
   const [prescription, setPrescription] = useState("");
+  const [paymentAmount, setPaymentAmount] = useState(500);
+  const [paymentMethod, setPaymentMethod] = useState("cash");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -71,10 +73,14 @@ export function MedicalRecordModal({
         return;
       }
 
-      // Update appointment status to completed
+      // Update appointment status to completed and save payment
       const { error: statusError } = await (supabase as any)
         .from('appointments')
-        .update({ status: 'completed' })
+        .update({ 
+          status: 'completed',
+          payment_amount: paymentAmount,
+          payment_method: paymentMethod 
+        })
         .eq('id', appointmentId);
 
       if (statusError) throw statusError;
@@ -154,6 +160,29 @@ export function MedicalRecordModal({
               rows={3}
               style={{ resize: "vertical" }}
             />
+          </div>
+          
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <label style={{ fontSize: "0.875rem", fontWeight: 500 }}>Payment Amount (₹)</label>
+              <input 
+                type="number" 
+                value={paymentAmount} 
+                onChange={e => setPaymentAmount(Number(e.target.value))}
+                className="glass-input" 
+              />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <label style={{ fontSize: "0.875rem", fontWeight: 500 }}>Payment Method</label>
+              <select 
+                value={paymentMethod} 
+                onChange={e => setPaymentMethod(e.target.value)}
+                className="glass-input" 
+              >
+                <option value="cash" style={{ color: "black" }}>Cash</option>
+                <option value="upi" style={{ color: "black" }}>UPI</option>
+              </select>
+            </div>
           </div>
         </div>
 
