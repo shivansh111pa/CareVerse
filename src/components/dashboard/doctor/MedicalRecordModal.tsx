@@ -43,6 +43,12 @@ export function MedicalRecordModal({
     setSaving(true);
     setError("");
 
+    if (!supabase) {
+      setError("Database connection not initialized");
+      setSaving(false);
+      return;
+    }
+
     try {
       // Create medical record
       const { error: recordError } = await supabase.from('medical_records').insert({
