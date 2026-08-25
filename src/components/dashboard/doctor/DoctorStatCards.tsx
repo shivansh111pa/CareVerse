@@ -9,18 +9,21 @@ interface DoctorStatCardsProps {
 
 export function DoctorStatCards({ doctorId }: DoctorStatCardsProps) {
   const [todayCount, setTodayCount] = useState(0);
+  const [totalPatients, setTotalPatients] = useState(0);
+  const [revenue, setRevenue] = useState(0);
   const supabase = createClient();
 
   useEffect(() => {
     if (!doctorId || !supabase) return;
 
-    const fetchTodayAppointments = async () => {
+    const fetchStats = async () => {
       const todayStart = new Date();
       todayStart.setHours(0, 0, 0, 0);
       const todayEnd = new Date();
       todayEnd.setHours(23, 59, 59, 999);
 
-      const { count } = await supabase
+      // Fetch today's scheduled appointments
+      const { count: todayApps } = await supabase
         .from("appointments")
         .select('*', { count: 'exact', head: true })
         .eq("doctor_id", doctorId)
@@ -28,12 +31,28 @@ export function DoctorStatCards({ doctorId }: DoctorStatCardsProps) {
         .lte("start_time", todayEnd.toISOString())
         .neq("status", "cancelled");
 
-      if (count !== null) {
-        setTodayCount(count);
+      if (todayApps !== null) {
+        setTodayCount(todayApps);
+      }
+
+      // Fetch all appointments to calculate unique patients and revenue
+      const { data: allAppointments } = await (supabase as any)
+        .from("appointments")
+        .select('patient_id, status')
+        .eq("doctor_id", doctorId);
+
+      if (allAppointments) {
+        // Unique patients
+        const uniquePatients = new Set(allAppointments.map((a: any) => a.patient_id));
+        setTotalPatients(uniquePatients.size);
+
+        // Calculate Revenue (assuming ₹500 per completed appointment)
+        const completedCount = allAppointments.filter((a: any) => a.status === 'completed').length;
+        setRevenue(completedCount * 500);
       }
     };
 
-    fetchTodayAppointments();
+    fetchStats();
 
     const channel = supabase
       .channel("stat-appointments-changes")
@@ -46,7 +65,7 @@ export function DoctorStatCards({ doctorId }: DoctorStatCardsProps) {
           filter: `doctor_id=eq.${doctorId}`,
         },
         () => {
-          fetchTodayAppointments();
+          fetchStats();
         }
       )
       .subscribe();
@@ -61,8 +80,8 @@ export function DoctorStatCards({ doctorId }: DoctorStatCardsProps) {
       {/* Total Patients */}
       <div className="glass-panel" style={{ padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
         <h3 style={{ fontSize: "0.875rem", fontWeight: 500 }}>Total Patients</h3>
-        <p className="font-display" style={{ fontSize: "2rem", fontWeight: 700, margin: "0.5rem 0" }}>0</p>
-        <p style={{ fontSize: "0.8125rem", color: "var(--text-muted)" }}>-</p>
+        <p className="font-display" style={{ fontSize: "2rem", fontWeight: 700, margin: "0.5rem 0" }}>{totalPatients}</p>
+        <p style={{ fontSize: "0.8125rem", color: "var(--text-muted)" }}>All time</p>
       </div>
 
       {/* Today's Appointments */}
@@ -82,8 +101,8 @@ export function DoctorStatCards({ doctorId }: DoctorStatCardsProps) {
       {/* Revenue */}
       <div className="glass-panel" style={{ padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
         <h3 style={{ fontSize: "0.875rem", fontWeight: 500 }}>Revenue</h3>
-        <p className="font-display" style={{ fontSize: "2rem", fontWeight: 700, margin: "0.5rem 0" }}>₹0</p>
-        <p style={{ fontSize: "0.8125rem", color: "var(--text-muted)" }}>-</p>
+        <p className="font-display" style={{ fontSize: "2rem", fontWeight: 700, margin: "0.5rem 0" }}>₹{revenue.toLocaleString()}</p>
+        <p style={{ fontSize: "0.8125rem", color: "var(--text-muted)" }}>From completed visits</p>
       </div>
     </div>
   );
