@@ -1902,3 +1902,71 @@ a:hover {
   background-color: rgba(255, 255, 255, 0.05);
 }
 
+/* Ambient rotating 3D DNA Double Helix */
+.medical-bg__dna {
+  position: absolute;
+  top: 15%;
+  right: 5%;
+  width: 90px;
+  height: 250px;
+  perspective: 1200px;
+  transform-style: preserve-3d;
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.dna-helix {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform: rotateZ(20deg);
+  animation: dna-spin 18s linear infinite;
+}
+
+.dna-rung {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+}
+
+.dna-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.dna-dot--left {
+  background: #6ee7de;
+  color: #6ee7de;
+}
+
+.dna-dot--right {
+  background: #8b7ff6;
+  color: #8b7ff6;
+}
+
+.dna-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(110, 231, 222, 0.15) 0%, rgba(139, 127, 246, 0.15) 100%);
+  margin: 0 4px;
+}
+
+@keyframes dna-spin {
+  0% {
+    transform: rotateZ(20deg) rotateY(0deg);
+  }
+  100% {
+    transform: rotateZ(20deg) rotateY(360deg);
+  }
+}
+
+

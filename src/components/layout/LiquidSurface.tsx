@@ -103,6 +103,24 @@ export function LiquidSurface({ calm = false }: LiquidSurfaceProps) {
           </svg>
         </div>
 
+        <div className="medical-bg__dna">
+          <div className="dna-helix">
+            {Array.from({ length: 20 }).map((_, i) => (
+              <div
+                key={i}
+                className="dna-rung"
+                style={{
+                  transform: `rotateY(${i * 18}deg) translateY(${i * 12}px) translateZ(0)`,
+                }}
+              >
+                <div className="dna-dot dna-dot--left" />
+                <div className="dna-line" />
+                <div className="dna-dot dna-dot--right" />
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="medical-bg__pulse" />
         <div className="medical-bg__pulse medical-bg__pulse--2" />
       </div>
