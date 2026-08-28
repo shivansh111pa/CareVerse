@@ -1879,3 +1879,26 @@ a:hover {
     align-items: center;
   }
 }
+
+/* User profile avatar hover effects */
+.avatar-container:hover .avatar-overlay {
+  opacity: 1 !important;
+}
+
+.avatar-container:hover {
+  transform: scale(1.05);
+  border-color: #80f5ec !important;
+}
+
+.dashboard-sidebar__user {
+  transition: background-color 0.2s ease;
+  border-radius: 12px;
+  padding: 0.5rem;
+  margin-left: -0.5rem;
+  margin-right: -0.5rem;
+}
+
+.dashboard-sidebar__user:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
