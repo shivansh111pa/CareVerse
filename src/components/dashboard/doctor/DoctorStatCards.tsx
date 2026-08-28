@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
+import { GsapReveal } from "@/components/ui/GsapReveal";
+
 interface DoctorStatCardsProps {
   doctorId: string;
 }
@@ -89,7 +91,7 @@ export function DoctorStatCards({ doctorId }: DoctorStatCardsProps) {
   }, [doctorId, supabase]);
 
   return (
-    <div className="stats-grid">
+    <GsapReveal className="stats-grid" stagger={0.08} duration={0.7} delay={0.05}>
       {/* Total Patients */}
       <div className="glass-panel" style={{ padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
         <h3 style={{ fontSize: "0.875rem", fontWeight: 500 }}>Total Patients</h3>
@@ -120,6 +122,6 @@ export function DoctorStatCards({ doctorId }: DoctorStatCardsProps) {
           <span>UPI: ₹{revenue.upi.toLocaleString()}</span>
         </p>
       </div>
-    </div>
+    </GsapReveal>
   );
 }

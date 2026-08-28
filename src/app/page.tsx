@@ -5,6 +5,7 @@ import { LandingHeader } from "@/components/landing/LandingHeader";
 import { LandingSections } from "@/components/landing/LandingSections";
 import { LiquidSurface } from "@/components/layout/LiquidSurface";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import { GsapReveal } from "@/components/ui/GsapReveal";
 
 function AuthPanelFallback() {
   return (
@@ -30,48 +31,38 @@ export default function LandingPage() {
       <main className="page-shell">
         <section className="landing-hero">
           <div className="landing-grid">
-            <div className="hero-copy">
-              <ScrollReveal variant="pop" delay={0} as="div">
-                <p className="font-mono text-muted hero-eyebrow">
-                  Dr. Shivansh A. Pandey, MBBS
-                </p>
-              </ScrollReveal>
+            <GsapReveal className="hero-copy" stagger={0.12} duration={0.85} delay={0.1}>
+              <p className="font-mono text-muted hero-eyebrow">
+                Dr. Shivansh A. Pandey, MBBS
+              </p>
 
-              <ScrollReveal variant="pop" delay={80} as="div">
-                <h1 className="font-display hero-headline">
-                  Your clinic,
-                  <span className="hero-headline__accent"> connected</span>
-                </h1>
-              </ScrollReveal>
+              <h1 className="font-display hero-headline">
+                Your clinic,
+                <span className="hero-headline__accent"> connected</span>
+              </h1>
 
-              <ScrollReveal variant="pop" delay={160} as="div">
-                <p className="hero-sub text-muted">
-                  Book appointments, manage records, and stay in touch with care
-                  that feels as calm as it is capable.
-                </p>
-              </ScrollReveal>
+              <p className="hero-sub text-muted">
+                Book appointments, manage records, and stay in touch with care
+                that feels as calm as it is capable.
+              </p>
 
-              <ScrollReveal variant="pop" delay={220} as="div">
-                <ul className="hero-features">
-                  {[
-                    "Online appointment booking",
-                    "Secure patient records",
-                    "Prescriptions & follow-ups",
-                  ].map((item) => (
-                    <li key={item} className="hero-features__item">
-                      <span className="hero-features__dot" aria-hidden="true" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </ScrollReveal>
+              <ul className="hero-features">
+                {[
+                  "Online appointment booking",
+                  "Secure patient records",
+                  "Prescriptions & follow-ups",
+                ].map((item) => (
+                  <li key={item} className="hero-features__item">
+                    <span className="hero-features__dot" aria-hidden="true" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
 
-              <ScrollReveal variant="pop" delay={300} as="div">
-                <a href="#about" className="hero-scroll-hint font-mono text-muted">
-                  Scroll to explore ↓
-                </a>
-              </ScrollReveal>
-            </div>
+              <a href="#about" className="hero-scroll-hint font-mono text-muted">
+                Scroll to explore ↓
+              </a>
+            </GsapReveal>
             <Suspense fallback={<AuthPanelFallback />}>
               <AuthPanel />
             </Suspense>
