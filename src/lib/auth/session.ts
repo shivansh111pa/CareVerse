@@ -1,20 +1,21 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Profile, UserRole } from "@/types";
 import { DASHBOARD_ROUTES } from "@/types";
+import { cache } from "react";
 
-export async function getSessionUser() {
+export const getSessionUser = cache(async () => {
   const supabase = await createClient();
   if (!supabase) return null;
   const {
     data: { user },
   } = await supabase.auth.getUser();
   return user;
-}
+});
 
-export async function getProfile(
+export const getProfile = cache(async (
   userId: string,
   client?: any
-): Promise<Profile | null> {
+): Promise<Profile | null> => {
   const supabase = client ?? (await createClient());
   if (!supabase) return null;
   const { data, error } = await supabase
@@ -25,13 +26,13 @@ export async function getProfile(
 
   if (error || !data) return null;
   return data as Profile;
-}
+});
 
-export async function getCurrentProfile(): Promise<Profile | null> {
+export const getCurrentProfile = cache(async (): Promise<Profile | null> => {
   const user = await getSessionUser();
   if (!user) return null;
   return getProfile(user.id);
-}
+});
 
 export function getDashboardPath(role: UserRole): string {
   return DASHBOARD_ROUTES[role];
