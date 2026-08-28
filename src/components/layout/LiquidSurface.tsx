@@ -1,6 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 interface LiquidSurfaceProps {
   /** Slower/near-static animation for data-heavy screens */
@@ -19,6 +25,7 @@ export function LiquidSurface({ calm = false }: LiquidSurfaceProps) {
     ).matches;
     if (reducedMotion) return;
 
+    // Parallax mouse effect
     const handleMove = (e: MouseEvent) => {
       const x = (e.clientX / window.innerWidth - 0.5) * 8;
       const y = (e.clientY / window.innerHeight - 0.5) * 8;
@@ -27,7 +34,94 @@ export function LiquidSurface({ calm = false }: LiquidSurfaceProps) {
     };
 
     window.addEventListener("mousemove", handleMove, { passive: true });
-    return () => window.removeEventListener("mousemove", handleMove);
+
+    // GSAP ScrollTrigger animations
+    const ctx = gsap.context(() => {
+      // 1. ECG Scrubbing (draw line on scroll)
+      gsap.to(".medical-bg__ecg:not(.medical-bg__ecg--upper) .medical-bg__ecg-line", {
+        scrollTrigger: {
+          trigger: document.body,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 0.5,
+        },
+        strokeDashoffset: 0,
+        ease: "none",
+      });
+
+      // 2. Parallax vertical offsets for background glyphs
+      gsap.to(".medical-bg__glyph--1", {
+        scrollTrigger: {
+          trigger: document.body,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 1,
+        },
+        yPercent: -60,
+        ease: "none",
+      });
+
+      gsap.to(".medical-bg__glyph--2", {
+        scrollTrigger: {
+          trigger: document.body,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 1,
+        },
+        yPercent: 80,
+        ease: "none",
+      });
+
+      gsap.to(".medical-bg__glyph--3", {
+        scrollTrigger: {
+          trigger: document.body,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 1,
+        },
+        yPercent: -40,
+        ease: "none",
+      });
+
+      gsap.to(".medical-bg__glyph--4", {
+        scrollTrigger: {
+          trigger: document.body,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 1,
+        },
+        yPercent: 50,
+        ease: "none",
+      });
+
+      gsap.to(".medical-bg__glyph--5", {
+        scrollTrigger: {
+          trigger: document.body,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 1,
+        },
+        yPercent: -80,
+        ease: "none",
+      });
+
+      // 3. Parallax for the DNA helix
+      gsap.to(".medical-bg__dna", {
+        scrollTrigger: {
+          trigger: document.body,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 1.2,
+        },
+        yPercent: 30,
+        ease: "none",
+      });
+    }, containerRef);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMove);
+      ctx.revert();
+    };
   }, []);
 
   return (

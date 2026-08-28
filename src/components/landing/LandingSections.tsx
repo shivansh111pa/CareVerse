@@ -1,5 +1,6 @@
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { GlassPanel } from "@/components/ui/GlassPanel";
+import { ScrollHighlightText } from "@/components/ui/ScrollHighlightText";
 
 const SERVICES = [
   {
@@ -64,15 +65,10 @@ export function LandingSections() {
           <GlassPanel variant="calm" className="section-panel">
             <p className="section-tag font-mono text-muted">About</p>
             <h2 className="section-title font-display">Your doctor, your digital clinic</h2>
-            <p className="section-body text-muted">
-              CareVerse is the online home of{" "}
-              <strong style={{ color: "var(--text-primary)", fontWeight: 500 }}>
-                Dr. Shivansh A. Pandey, MBBS
-              </strong>
-              . We combine thoughtful in-person care with a calm, modern platform for
-              appointments, records, and follow-ups — so managing your health feels
-              straightforward, not overwhelming.
-            </p>
+            <ScrollHighlightText
+              className="section-body text-muted"
+              text="CareVerse is the online home of Dr. Shivansh A. Pandey, MBBS. We combine thoughtful in-person care with a calm, modern platform for appointments, records, and follow-ups — so managing your health feels straightforward, not overwhelming."
+            />
           </GlassPanel>
         </section>
       </ScrollReveal>
@@ -105,10 +101,10 @@ export function LandingSections() {
             <GlassPanel variant="calm" className="section-panel section-panel--tall">
               <p className="section-tag font-mono text-muted">Location</p>
               <h2 className="section-title font-display">Find the clinic</h2>
-              <p className="section-body text-muted">
-                Clinic address and map integration coming soon. For now, contact us
-                directly to confirm directions and parking.
-              </p>
+              <ScrollHighlightText
+                className="section-body text-muted"
+                text="Clinic address and map integration coming soon. For now, contact us directly to confirm directions and parking."
+              />
               <div className="map-placeholder" aria-hidden="true">
                 <span className="font-mono text-muted">Map preview</span>
               </div>
@@ -143,10 +139,10 @@ export function LandingSections() {
           <GlassPanel variant="calm" className="section-panel section-panel--cta">
             <p className="section-tag font-mono text-muted">Contact</p>
             <h2 className="section-title font-display">Get in touch</h2>
-            <p className="section-body text-muted">
-              Full contact form and WhatsApp sharing arrive in a later module. For
-              now, sign in to message your care team from the dashboard.
-            </p>
+            <ScrollHighlightText
+              className="section-body text-muted"
+              text="Full contact form and WhatsApp sharing arrive in a later module. For now, sign in to message your care team from the dashboard."
+            />
             <div className="contact-chips">
               <span className="contact-chip font-mono">Email — coming soon</span>
               <span className="contact-chip font-mono">Phone — coming soon</span>

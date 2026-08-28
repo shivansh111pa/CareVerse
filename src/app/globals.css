@@ -1980,5 +1980,33 @@ a:hover {
   will-change: transform, opacity;
 }
 
+/* Disable continuous CSS animation for the main scroll-scrubbed ECG line */
+.medical-bg__ecg:not(.medical-bg__ecg--upper) .medical-bg__ecg-line {
+  animation: none;
+}
+
+/* Lenis smooth scrolling default recommended styling */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+
 
 
