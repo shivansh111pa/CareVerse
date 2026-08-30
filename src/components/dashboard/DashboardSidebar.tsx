@@ -3,6 +3,7 @@ import { getNavForRole } from "@/lib/dashboard/nav";
 import { logoutAction } from "@/app/actions/auth";
 import { DashboardNavLink } from "@/components/dashboard/DashboardNavLink";
 import Link from "next/link";
+import Image from "next/image";
 
 interface DashboardSidebarProps {
   profile: Profile;
@@ -30,9 +31,11 @@ export function DashboardSidebar({ profile }: DashboardSidebarProps) {
 
       <Link href={settingsHref} className="dashboard-sidebar__user" style={{ display: "flex", alignItems: "center", gap: "0.75rem", textDecoration: "none", color: "inherit" }}>
         {profile.avatar_url ? (
-          <img
+          <Image
             src={profile.avatar_url}
             alt={profile.full_name}
+            width={40}
+            height={40}
             style={{ width: "40px", height: "40px", borderRadius: "50%", objectFit: "cover", border: "1.5px solid var(--accent-aqua)" }}
           />
         ) : (

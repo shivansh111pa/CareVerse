@@ -5,6 +5,7 @@ import { useFormState, useFormStatus } from "react-dom";
 import { updateProfileAction, updateAvatarAction } from "@/app/actions/profile";
 import { createClient } from "@/lib/supabase/client";
 import { GlassPanel } from "@/components/ui/GlassPanel";
+import Image from "next/image";
 import type { Profile, AuthFormState } from "@/types";
 
 interface ProfileSettingsFormProps {
@@ -128,10 +129,11 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
             className="avatar-container"
           >
             {avatarUrl ? (
-              <img 
+              <Image 
                 src={avatarUrl} 
                 alt={profile.full_name} 
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                fill
+                style={{ objectFit: "cover" }}
               />
             ) : (
               <span style={{ fontSize: "2.5rem", fontWeight: 600, color: "var(--accent-aqua)" }}>
