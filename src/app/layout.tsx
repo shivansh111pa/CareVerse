@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     "Appointment booking and patient management for Dr. Shivansh A. Pandey, MBBS.",
 };
 
-import { CustomCursor } from "@/components/ui/CustomCursor";
+
 
 export default function RootLayout({
   children,
@@ -19,7 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <div className="noise-overlay" />
-        <CustomCursor />
+
         <SmoothScroll>{children}</SmoothScroll>
       </body>
     </html>
