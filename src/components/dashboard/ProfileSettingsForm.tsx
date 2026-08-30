@@ -209,6 +209,46 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
               </div>
             </div>
 
+            {profile.role === "patient" && (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1.5rem" }}>
+                <div className="form-field">
+                  <label className="form-label" htmlFor="age">Age</label>
+                  <input 
+                    id="age"
+                    name="age"
+                    type="number"
+                    defaultValue={profile.age || ""}
+                    required
+                    min="0"
+                    max="120"
+                    className="glass-input"
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label" htmlFor="height">Height (e.g. 5'10")</label>
+                  <input 
+                    id="height"
+                    name="height"
+                    type="text"
+                    defaultValue={profile.height || ""}
+                    className="glass-input"
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label" htmlFor="weight">Weight (e.g. 150 lbs)</label>
+                  <input 
+                    id="weight"
+                    name="weight"
+                    type="text"
+                    defaultValue={profile.weight || ""}
+                    className="glass-input"
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="form-field">
               <label className="form-label" htmlFor="address">Address</label>
               <textarea 

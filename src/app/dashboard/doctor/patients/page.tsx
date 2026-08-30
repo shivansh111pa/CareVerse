@@ -22,7 +22,8 @@ export default async function PatientsPage() {
         profiles!appointments_patient_id_fkey (
           id,
           full_name,
-          phone
+          phone,
+          age
         )
       `)
       .eq("doctor_id", profile.id)
@@ -38,7 +39,7 @@ export default async function PatientsPage() {
           patientMap.set(appt.patient_id, {
             id: appt.profiles.id,
             name: appt.profiles.full_name || "Unknown Patient",
-            age: "-", // Age not implemented in profile schema yet
+            age: appt.profiles.age ? String(appt.profiles.age) : "-",
             email: appt.profiles.email || "No email",
             phone: appt.profiles.phone || "No phone",
             lastVisit: new Date(appt.start_time) < new Date() ? new Date(appt.start_time).toLocaleDateString() : "None",

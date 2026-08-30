@@ -13,7 +13,10 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
   let appointments: any[] = [];
 
   if (supabase) {
-    const { data } = await supabase.from("profiles").select("*").eq("id", params.id).single();
+    const { data, error } = await supabase.from("profiles").select("*").eq("id", params.id).single();
+    console.log("[PatientDetailPage] Fetching profile for id:", params.id);
+    console.log("[PatientDetailPage] Data:", data);
+    console.log("[PatientDetailPage] Error:", error);
     if (data) {
       patientProfile = data;
     }
@@ -45,14 +48,14 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
   const patient = {
     id: patientProfile.id,
     name: patientProfile.full_name || "Unknown Patient",
-    age: "-",
+    age: patientProfile.age ? String(patientProfile.age) : "-",
     gender: "Not specified",
     bloodType: "Not specified",
-    height: "Not specified",
-    weight: "Not specified",
+    height: patientProfile.height || "Not specified",
+    weight: patientProfile.weight || "Not specified",
     phone: patientProfile.phone || "No phone on file",
     email: patientProfile.email || "No email on file",
-    address: "Not specified",
+    address: patientProfile.address || "Not specified",
   };
 
   return (

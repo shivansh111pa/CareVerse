@@ -16,6 +16,9 @@ const profileSchema = z.object({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
   phone: z.string().min(5, "Enter a valid phone number"),
   address: z.string().min(5, "Address must be at least 5 characters"),
+  age: z.coerce.number().min(0).max(120, "Please enter a valid age"),
+  height: z.string().optional(),
+  weight: z.string().optional(),
 });
 
 export async function onboardUserAction(
@@ -87,6 +90,9 @@ export async function updateProfileAction(
         full_name: parsed.data.fullName,
         phone: parsed.data.phone,
         address: parsed.data.address,
+        age: parsed.data.age,
+        height: parsed.data.height,
+        weight: parsed.data.weight,
       })
       .eq("id", user.id);
 
