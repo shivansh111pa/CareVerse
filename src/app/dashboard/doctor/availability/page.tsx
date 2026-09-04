@@ -1,5 +1,6 @@
 import { getCurrentProfile } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
+import { XIcon } from "@/components/ui/Icons";
 
 export default async function DoctorAvailabilityPage() {
   const profile = await getCurrentProfile();
@@ -97,7 +98,9 @@ export default async function DoctorAvailabilityPage() {
                   <div style={{ fontWeight: 500, fontSize: "0.875rem" }}>Nov 23, 2024</div>
                   <div style={{ fontSize: "0.75rem", color: "var(--accent-violet)" }}>Closed All Day (Thanksgiving)</div>
                 </div>
-                <span style={{ color: "var(--text-muted)", cursor: "not-allowed" }}>✕</span>
+                <span style={{ color: "var(--text-muted)", cursor: "not-allowed", display: "inline-flex", alignItems: "center" }}>
+                  <XIcon style={{ width: 14, height: 14 }} />
+                </span>
               </div>
             </div>
           </div>

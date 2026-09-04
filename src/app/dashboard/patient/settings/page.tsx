@@ -1,5 +1,6 @@
 import { getCurrentProfile } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
+import { SettingsIcon } from "@/components/ui/Icons";
 
 export default async function SettingsPage() {
   const profile = await getCurrentProfile();
@@ -16,10 +17,12 @@ export default async function SettingsPage() {
         </p>
       </header>
 
-      <div className="glass-panel" style={{ padding: "3rem", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "400px" }}>
-        <span style={{ fontSize: "3rem", marginBottom: "1rem" }}>⚙️</span>
-        <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "0.5rem" }}>Settings Module Coming Soon</h2>
-        <p className="text-muted" style={{ maxWidth: "400px" }}>Update your contact information, password, and notification preferences.</p>
+      <div className="glass-panel" style={{ padding: "3rem", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "360px" }}>
+        <div style={{ width: 64, height: 64, borderRadius: 14, background: "var(--surface-subtle)", border: "2px solid var(--border-dark)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--accent-forest)", marginBottom: "1rem" }}>
+          <SettingsIcon style={{ width: 32, height: 32 }} />
+        </div>
+        <h2 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "0.5rem", fontFamily: "var(--font-display)" }}>Settings Module Coming Soon</h2>
+        <p className="text-muted" style={{ maxWidth: "400px", fontSize: "0.9375rem" }}>Update your contact information, password, and notification preferences.</p>
       </div>
     </div>
   );

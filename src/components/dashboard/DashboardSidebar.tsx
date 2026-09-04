@@ -14,13 +14,13 @@ export function DashboardSidebar({ profile }: DashboardSidebarProps) {
   return (
     <aside className="dashboard-sidebar glass-panel glass-panel--calm">
       <div className="dashboard-sidebar__brand">
-        <span className="font-display dashboard-sidebar__logo">CareVerse</span>
-        <span className="font-mono dashboard-sidebar__role">{roleLabel}</span>
+        <span className="dashboard-sidebar__logo">CareVerse</span>
+        <span className="dashboard-sidebar__role">{roleLabel}</span>
       </div>
 
       <div className="dashboard-sidebar__user">
         <p className="dashboard-sidebar__name">{profile.full_name || "User"}</p>
-        <p className="font-mono text-muted dashboard-sidebar__meta">{roleLabel} portal</p>
+        <p className="text-muted dashboard-sidebar__meta">{roleLabel} portal</p>
       </div>
 
       <nav className="dashboard-sidebar__nav" aria-label="Dashboard navigation">

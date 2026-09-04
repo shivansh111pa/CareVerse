@@ -124,7 +124,7 @@ export default async function MessagesPage() {
               </div>
               <div>
                 <div style={{ background: "var(--accent-aqua)", color: "#000", padding: "1rem", borderRadius: "16px 0 16px 16px", fontSize: "0.9375rem", lineHeight: 1.5 }}>
-                  Thank you, doctor. I'll pick up the prescription today.
+                  Thank you, doctor. I&apos;ll pick up the prescription today.
                 </div>
                 <div style={{ fontSize: "0.6875rem", color: "var(--text-muted)", marginTop: "0.25rem", marginRight: "0.5rem", textAlign: "right" }}>10:24 AM</div>
               </div>

@@ -14,7 +14,7 @@ export function PatientQuickActions() {
               <span className="text-muted dashboard-quick-action__desc">
                 {action.description}
               </span>
-              <span className="font-mono dashboard-quick-action__badge">Coming soon</span>
+              <span className="dashboard-quick-action__badge">Coming soon</span>
             </GlassPanel>
           </Link>
         ))}

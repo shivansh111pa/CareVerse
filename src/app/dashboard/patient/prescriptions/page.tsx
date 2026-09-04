@@ -1,14 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/lib/auth/AuthContext";
 
 export default function PrescriptionsPage() {
-  const { profile } = useAuth();
   const [expandedId, setExpandedId] = useState<string | null>(null);
-
-  // Fallback while loading
-  if (!profile && typeof window !== "undefined") return null;
 
   const mockPrescriptions = [
     {
@@ -153,7 +148,7 @@ export default function PrescriptionsPage() {
                   {/* Notes */}
                   {rx.notes && (
                     <div style={{ marginTop: "1.5rem", padding: "1rem", background: "rgba(255,255,255,0.02)", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)" }}>
-                      <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.25rem" }}>Doctor's Notes</div>
+                      <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.25rem" }}>Doctor&apos;s Notes</div>
                       <p style={{ fontSize: "0.875rem", lineHeight: 1.5 }}>{rx.notes}</p>
                     </div>
                   )}
