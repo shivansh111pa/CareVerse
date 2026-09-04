@@ -6,6 +6,11 @@ export interface Profile {
   full_name: string;
   phone: string | null;
   created_at: string;
+  address?: string | null;
+  avatar_url?: string | null;
+  age?: number | null;
+  height?: string | null;
+  weight?: string | null;
 }
 
 export type Database = {
@@ -18,6 +23,11 @@ export type Database = {
           full_name: string;
           phone: string | null;
           created_at: string;
+          address: string | null;
+          avatar_url: string | null;
+          age: number | null;
+          height: string | null;
+          weight: string | null;
         };
         Insert: {
           id: string;
@@ -25,6 +35,8 @@ export type Database = {
           full_name?: string;
           phone?: string | null;
           created_at?: string;
+          address?: string | null;
+          avatar_url?: string | null;
         };
         Update: {
           id?: string;
@@ -32,6 +44,8 @@ export type Database = {
           full_name?: string;
           phone?: string | null;
           created_at?: string;
+          address?: string | null;
+          avatar_url?: string | null;
         };
         Relationships: [];
       };

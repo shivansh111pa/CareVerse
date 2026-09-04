@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { getCurrentProfile } from "@/lib/auth/session";
 import {
   BellIcon,
@@ -15,18 +16,64 @@ export default async function PatientDashboardPage() {
 
   const firstName = profile.full_name?.split(" ")[0] || "there";
 
+  const supabase = await createClient();
+  let latestVitals = { heart_rate: 0, blood_pressure_systolic: 0, blood_pressure_diastolic: 0, steps: 0 };
+  let recentPrescriptions: any[] = [];
+  let pastVisits: any[] = [];
+
+  if (supabase) {
+    // Fetch latest vitals
+    const { data: vitalsData } = await supabase
+      .from('vitals')
+      .select('*')
+      .eq('patient_id', profile.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+    
+    if (vitalsData) latestVitals = vitalsData;
+
+    // Fetch recent prescriptions (where prescription is not null)
+    const { data: rxData } = await supabase
+      .from('medical_records')
+      .select('id, prescription, created_at, profiles!medical_records_doctor_id_fkey(full_name)')
+      .eq('patient_id', profile.id)
+      .not('prescription', 'is', null)
+      .neq('prescription', '')
+      .order('created_at', { ascending: false })
+      .limit(3);
+    
+    if (rxData) recentPrescriptions = rxData;
+
+    // Fetch past visits
+    const { data: visitsData } = await supabase
+      .from('medical_records')
+      .select('id, diagnosis, created_at, appointments(reason), profiles!medical_records_doctor_id_fkey(full_name)')
+      .eq('patient_id', profile.id)
+      .order('created_at', { ascending: false })
+      .limit(5);
+
+    if (visitsData) pastVisits = visitsData;
+  }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", height: "100%", width: "100%", maxWidth: "1200px", margin: "0 auto" }}>
       {/* Header */}
       <div className="responsive-header">
+        <header id="overview" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "1rem" }}>
         <div>
-          <p style={{ fontSize: "0.875rem", color: "var(--text-muted)", marginBottom: "0.25rem" }}>
-            Welcome, {profile.full_name}
-          </p>
-          <h1 className="font-display" style={{ fontSize: "2rem", margin: 0 }}>
-            Patient Dashboard
+          <h1 className="font-display dashboard-page__title" style={{ fontSize: "2rem", marginBottom: "0.25rem" }}>
+            Welcome back, {profile.full_name?.split(" ")[0]}!
           </h1>
+          <p className="text-muted dashboard-page__lead">
+            Here is your daily health summary and upcoming schedule.
+          </p>
         </div>
+        
+        <Link href="/dashboard/patient/appointments/book" className="btn" style={{ padding: "0.75rem 1.5rem", borderRadius: "99px", background: "var(--accent-aqua)", color: "#000", fontWeight: 600, border: "none", textDecoration: "none" }}>
+          + Book Appointment
+        </Link>
+      </header>
         <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
           <button type="button" className="btn btn-ghost" style={{ padding: "0.4rem", borderRadius: "50%" }} aria-label="Notifications">
             <BellIcon style={{ width: 20, height: 20 }} />

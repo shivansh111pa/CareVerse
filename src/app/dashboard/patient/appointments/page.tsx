@@ -1,4 +1,5 @@
 import { getCurrentProfile } from "@/lib/auth/session";
+import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ClockIcon, VideoIcon, CalendarIcon } from "@/components/ui/Icons";
@@ -91,10 +92,10 @@ export default async function AppointmentsPage() {
                   <div style={{ fontSize: "0.625rem", color: "var(--text-muted)", textTransform: "uppercase" }}>Queue</div>
                   <div style={{ fontSize: "0.875rem", fontWeight: 600 }}>Ready</div>
                 </div>
-              )}
-            </div>
-          </div>
-        ))}
+              </div>
+            );
+          })
+        )}
       </div>
 
     </div>

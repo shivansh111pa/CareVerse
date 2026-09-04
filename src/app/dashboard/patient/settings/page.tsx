@@ -10,10 +10,10 @@ export default async function SettingsPage() {
     <div style={{ display: "flex", flexDirection: "column", gap: "2rem", height: "100%", width: "100%", maxWidth: "1200px", margin: "0 auto" }}>
       <header>
         <h1 className="font-display" style={{ fontSize: "2rem", marginBottom: "0.25rem" }}>
-          Account Settings
+          My Profile
         </h1>
         <p className="text-muted">
-          Manage your profile, preferences, and billing.
+          Manage your personal details, address, and avatar picture.
         </p>
       </header>
 

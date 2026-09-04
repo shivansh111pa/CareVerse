@@ -10,10 +10,10 @@ export default async function SettingsPage() {
     <div className="dashboard-page" style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
       <header id="overview">
         <h1 className="font-display dashboard-page__title" style={{ fontSize: "2rem", marginBottom: "0.25rem" }}>
-          Clinic Settings
+          My Profile
         </h1>
         <p className="text-muted dashboard-page__lead">
-          Manage your account, billing, and clinic preferences.
+          Manage your personal details, address, and clinic preferences.
         </p>
       </header>
 

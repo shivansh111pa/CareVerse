@@ -6,6 +6,34 @@ export default async function RecordsPage() {
   const profile = await getCurrentProfile();
   if (!profile || profile.role !== "patient") redirect("/?auth=login");
 
+  const supabase = await createClient();
+  let records: any[] = [];
+
+  if (supabase) {
+    const { data } = await supabase
+      .from('medical_records')
+      .select(`
+        id,
+        diagnosis,
+        notes,
+        prescription,
+        created_at,
+        profiles!medical_records_doctor_id_fkey (
+          full_name
+        ),
+        appointments (
+          start_time,
+          reason
+        )
+      `)
+      .eq('patient_id', profile.id)
+      .order('created_at', { ascending: false });
+      
+    if (data) {
+      records = data;
+    }
+  }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "2rem", height: "100%", width: "100%", maxWidth: "1200px", margin: "0 auto" }}>
       <header>
@@ -13,7 +41,7 @@ export default async function RecordsPage() {
           Health Records
         </h1>
         <p className="text-muted">
-          Access your lab results, summaries, and history.
+          Access your medical history, diagnosis, and doctor notes.
         </p>
       </header>
 

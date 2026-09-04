@@ -61,7 +61,7 @@ export default function PrescriptionsPage() {
       </header>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-        {mockPrescriptions.map((rx) => {
+        {prescriptions.map((rx) => {
           const isExpanded = expandedId === rx.id;
           
           return (
@@ -118,30 +118,11 @@ export default function PrescriptionsPage() {
                     </div>
                   </div>
 
-                  {/* Medicines Table */}
+                  {/* Prescription */}
                   <div style={{ marginTop: "2rem" }}>
                     <h4 style={{ fontSize: "0.875rem", fontWeight: 600, marginBottom: "1rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>Medications</h4>
-                    <div className="table-responsive">
-                      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
-                        <thead>
-                          <tr style={{ color: "var(--text-muted)", borderBottom: "1px solid rgba(255,255,255,0.1)", textAlign: "left" }}>
-                            <th style={{ padding: "0.5rem 0", fontWeight: 400 }}>Medicine</th>
-                            <th style={{ padding: "0.5rem 0", fontWeight: 400 }}>Dosage</th>
-                            <th style={{ padding: "0.5rem 0", fontWeight: 400 }}>Frequency</th>
-                            <th style={{ padding: "0.5rem 0", fontWeight: 400 }}>Duration</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {rx.medicines.map((med, idx) => (
-                            <tr key={idx} style={{ borderBottom: idx === rx.medicines.length - 1 ? "none" : "1px solid rgba(255,255,255,0.05)" }}>
-                              <td style={{ padding: "1rem 0", fontWeight: 500 }}>{med.name}</td>
-                              <td style={{ padding: "1rem 0" }}>{med.dosage}</td>
-                              <td style={{ padding: "1rem 0" }}>{med.frequency}</td>
-                              <td style={{ padding: "1rem 0" }}>{med.duration}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                    <div style={{ padding: "1rem", background: "rgba(255,255,255,0.02)", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.05)", fontSize: "0.9375rem", whiteSpace: "pre-wrap" }}>
+                      {rx.rawPrescription}
                     </div>
                   </div>
 

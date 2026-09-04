@@ -2,14 +2,25 @@ import type { Profile } from "@/types";
 import { getNavForRole } from "@/lib/dashboard/nav";
 import { logoutAction } from "@/app/actions/auth";
 import { DashboardNavLink } from "@/components/dashboard/DashboardNavLink";
+import Link from "next/link";
+import Image from "next/image";
 
 interface DashboardSidebarProps {
   profile: Profile;
 }
 
+function getInitials(name: string) {
+  if (!name) return "?";
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
 export function DashboardSidebar({ profile }: DashboardSidebarProps) {
   const navItems = getNavForRole(profile.role);
   const roleLabel = profile.role === "doctor" ? "Doctor" : "Patient";
+  const settingsHref = profile.role === "doctor" ? "/dashboard/doctor/settings" : "/dashboard/patient/settings";
+  const initials = getInitials(profile.full_name);
 
   return (
     <aside className="dashboard-sidebar glass-panel glass-panel--calm">

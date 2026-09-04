@@ -6,7 +6,7 @@ export default async function MessagesPage() {
   if (!profile || profile.role !== "doctor") redirect("/?auth=login");
 
   const conversations = [
-    { id: "C1", name: "Liam Nguyen", lastMsg: "Thank you, doctor. I'll pick up the prescription today.", time: "10:24 AM", unread: true },
+    { id: "C1", name: "Liam Nguyen", lastMsg: "Thank you, doctor. I&apos;ll pick up the prescription today.", time: "10:24 AM", unread: true },
     { id: "C2", name: "Isabella Rossi", lastMsg: "Is it normal to have a slight fever?", time: "Yesterday", unread: false },
     { id: "C3", name: "David Kim", lastMsg: "Sounds good, see you then.", time: "Oct 24", unread: false },
   ];

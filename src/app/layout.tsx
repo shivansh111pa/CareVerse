@@ -1,5 +1,25 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { SmoothScroll } from "@/components/layout/SmoothScroll";
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-body",
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-display",
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  weight: ["400", "500"],
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-mono",
+});
 
 export const viewport: Viewport = {
   themeColor: "#0b5a42",
