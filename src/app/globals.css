@@ -1517,6 +1517,8 @@ img, svg {
 .gsap-reveal-init > * {
   opacity: 0;
   will-change: transform, opacity;
+}
+
 /* Scroll Reveal Animations (IntersectionObserver & CSS) */
 .scroll-reveal {
   opacity: 0;
