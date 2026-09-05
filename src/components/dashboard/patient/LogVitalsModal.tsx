@@ -121,11 +121,11 @@ export function LogVitalsModal({ isOpen, onClose, patientId, onComplete }: LogVi
 
         </div>
 
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: "1rem", marginTop: "1rem" }}>
-          <button onClick={onClose} className="btn btn-ghost" style={{ padding: "0.5rem 1rem", borderRadius: "99px" }}>
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem", marginTop: "1rem" }}>
+          <button onClick={onClose} className="btn btn-secondary" style={{ padding: "0.55rem 1.1rem", fontSize: "0.875rem" }}>
             Cancel
           </button>
-          <button onClick={handleSave} disabled={saving} className="btn" style={{ padding: "0.5rem 1.5rem", borderRadius: "99px", background: "var(--accent-aqua)", color: "#000", fontWeight: 600, border: "none" }}>
+          <button onClick={handleSave} disabled={saving} className="btn btn-primary" style={{ padding: "0.55rem 1.25rem", fontSize: "0.875rem" }}>
             {saving ? "Saving..." : "Save Vitals"}
           </button>
         </div>

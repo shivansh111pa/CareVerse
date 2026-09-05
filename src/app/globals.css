@@ -32,6 +32,9 @@
   --accent-yellow-light: #fef3c7;
   --accent-blue: #1d4ed8;
   --accent-blue-light: #eff6ff;
+  --accent-aqua: var(--accent-forest);
+  --accent-red: var(--accent-terracotta);
+
 
   --text-primary: #122820;
   --text-secondary: #3b4e47;
@@ -561,7 +564,8 @@ img, svg {
   display: inline-block;
 }
 
-.hero-subhead {
+.hero-subhead,
+.hero-sub {
   font-size: 1.125rem;
   color: var(--text-secondary);
   line-height: 1.6;
@@ -584,6 +588,12 @@ img, svg {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.hero-stat-box:hover {
+  transform: translate(-1.5px, -1.5px);
+  box-shadow: var(--shadow-brutal);
 }
 
 .hero-stat-box__val {
@@ -602,6 +612,7 @@ img, svg {
   letter-spacing: -0.01em;
   margin-top: 0.25rem;
 }
+
 
 .hero-features {
   list-style: none;

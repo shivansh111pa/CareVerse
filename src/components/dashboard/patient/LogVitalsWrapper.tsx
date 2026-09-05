@@ -10,10 +10,10 @@ export function LogVitalsWrapper({ patientId }: { patientId: string }) {
     <>
       <button 
         onClick={() => setIsModalOpen(true)}
-        className="btn" 
-        style={{ padding: "0.5rem 1rem", borderRadius: "99px", background: "var(--accent-aqua)", color: "#000", fontWeight: 600, border: "none", fontSize: "0.875rem" }}
+        className="btn btn-primary" 
+        style={{ padding: "0.45rem 0.9rem", fontSize: "0.8125rem" }}
       >
-        Log Vitals
+        Log Health Vitals
       </button>
       <LogVitalsModal 
         isOpen={isModalOpen}
