@@ -1517,11 +1517,24 @@ img, svg {
 .gsap-reveal-init > * {
   opacity: 0;
   will-change: transform, opacity;
+/* Scroll Reveal Animations (IntersectionObserver & CSS) */
+.scroll-reveal {
+  opacity: 0;
+  transition: opacity 0.6s var(--ease-pop), transform 0.6s var(--ease-pop);
+  will-change: opacity, transform;
 }
 
-.scroll-reveal-init {
-  opacity: 0;
-  will-change: transform, opacity;
+.scroll-reveal--fade {
+  transform: translateY(24px);
+}
+
+.scroll-reveal--pop {
+  transform: translateY(18px) scale(0.98);
+}
+
+.scroll-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 /* Disable continuous CSS animation for the main scroll-scrubbed ECG line */
