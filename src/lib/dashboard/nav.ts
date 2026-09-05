@@ -11,9 +11,10 @@ export const DOCTOR_NAV: DashboardNavItem[] = [
   { label: "Home", href: "/dashboard/doctor", anchor: true },
   { label: "Patients", href: "/dashboard/doctor/patients" },
   { label: "Appointments", href: "/dashboard/doctor/appointments" },
+  { label: "Availability", href: "/dashboard/doctor/availability" },
   { label: "Analytics", href: "/dashboard/doctor/analytics" },
   { label: "Messages", href: "/dashboard/doctor/messages" },
-  { label: "Settings", href: "/dashboard/doctor/settings" },
+  { label: "Profile", href: "/dashboard/doctor/settings" },
 ];
 
 export const PATIENT_NAV: DashboardNavItem[] = [
@@ -22,7 +23,7 @@ export const PATIENT_NAV: DashboardNavItem[] = [
   { label: "Health Records", href: "/dashboard/patient/records" },
   { label: "Prescriptions", href: "/dashboard/patient/prescriptions" },
   { label: "Messages", href: "/dashboard/patient/messages" },
-  { label: "Settings", href: "/dashboard/patient/settings" },
+  { label: "Profile", href: "/dashboard/patient/settings" },
 ];
 
 export function getNavForRole(role: UserRole): DashboardNavItem[] {

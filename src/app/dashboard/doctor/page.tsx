@@ -58,7 +58,7 @@ export default async function DoctorDashboardPage() {
       </header>
 
       {/* Stats Cards */}
-      <DoctorStatCards />
+      <DoctorStatCards doctorId={profile.id} />
 
       {/* Chart & List Grid */}
       <div className="dashboard-grid">

@@ -1423,3 +1423,143 @@ img, svg {
 .dashboard-nav-link.is-active:hover {
   color: #ffffff;
 }
+
+/* User profile avatar hover effects */
+.avatar-container:hover .avatar-overlay {
+  opacity: 1 !important;
+}
+
+.avatar-container:hover {
+  transform: scale(1.05);
+  border-color: #80f5ec !important;
+}
+
+.dashboard-sidebar__user {
+  transition: background-color 0.2s ease;
+  border-radius: 12px;
+  padding: 0.5rem;
+  margin-left: -0.5rem;
+  margin-right: -0.5rem;
+}
+
+.dashboard-sidebar__user:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Ambient rotating 3D DNA Double Helix */
+.medical-bg__dna {
+  position: absolute;
+  top: 15%;
+  right: 5%;
+  width: 90px;
+  height: 250px;
+  perspective: 1200px;
+  transform-style: preserve-3d;
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.dna-helix {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform: rotateZ(20deg);
+  animation: dna-spin 18s linear infinite;
+}
+
+.dna-rung {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+}
+
+.dna-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.dna-dot--left {
+  background: #6ee7de;
+  color: #6ee7de;
+}
+
+.dna-dot--right {
+  background: #8b7ff6;
+  color: #8b7ff6;
+}
+
+.dna-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(110, 231, 222, 0.15) 0%, rgba(139, 127, 246, 0.15) 100%);
+  margin: 0 4px;
+}
+
+@keyframes dna-spin {
+  0% {
+    transform: rotateZ(20deg) rotateY(0deg);
+  }
+  100% {
+    transform: rotateZ(20deg) rotateY(360deg);
+  }
+}
+
+/* GSAP Initial States to prevent Flash of Unstyled Content */
+.gsap-reveal-init > * {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.scroll-reveal-init {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* Disable continuous CSS animation for the main scroll-scrubbed ECG line */
+.medical-bg__ecg:not(.medical-bg__ecg--upper) .medical-bg__ecg-line {
+  animation: none;
+}
+
+/* Lenis smooth scrolling default recommended styling */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Noise Overlay                                                       */
+/* ------------------------------------------------------------------ */
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.04;
+  mix-blend-mode: overlay;
+}

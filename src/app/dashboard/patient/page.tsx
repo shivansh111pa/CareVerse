@@ -1,12 +1,16 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { getCurrentProfile } from "@/lib/auth/session";
 import {
   BellIcon,
   MessageSquareIcon,
-  ClockIcon,
-  VideoIcon,
   FileTextIcon,
 } from "@/components/ui/Icons";
+import { NextAppointmentCard } from "@/components/dashboard/patient/NextAppointmentCard";
+import { createClient } from "@/lib/supabase/server";
+import { LogVitalsWrapper } from "@/components/dashboard/patient/LogVitalsWrapper";
+
+export const dynamic = 'force-dynamic';
 
 export default async function PatientDashboardPage() {
   const profile = await getCurrentProfile();
@@ -15,18 +19,65 @@ export default async function PatientDashboardPage() {
 
   const firstName = profile.full_name?.split(" ")[0] || "there";
 
+  const supabase = await createClient();
+  let latestVitals = { heart_rate: 0, blood_pressure_systolic: 0, blood_pressure_diastolic: 0, steps: 0 };
+  let recentPrescriptions: any[] = [];
+  let pastVisits: any[] = [];
+
+  if (supabase) {
+    // Fetch latest vitals
+    const { data: vitalsData } = await supabase
+      .from('vitals')
+      .select('*')
+      .eq('patient_id', profile.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+    
+    if (vitalsData) latestVitals = vitalsData;
+
+    // Fetch recent prescriptions (where prescription is not null)
+    const { data: rxData } = await supabase
+      .from('medical_records')
+      .select('id, prescription, created_at, profiles!medical_records_doctor_id_fkey(full_name)')
+      .eq('patient_id', profile.id)
+      .not('prescription', 'is', null)
+      .neq('prescription', '')
+      .order('created_at', { ascending: false })
+      .limit(3);
+    
+    if (rxData) recentPrescriptions = rxData;
+
+    // Fetch past visits
+    const { data: visitsData } = await supabase
+      .from('medical_records')
+      .select('id, diagnosis, created_at, appointments(reason), profiles!medical_records_doctor_id_fkey(full_name)')
+      .eq('patient_id', profile.id)
+      .order('created_at', { ascending: false })
+      .limit(5);
+
+    if (visitsData) pastVisits = visitsData;
+  }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", height: "100%", width: "100%", maxWidth: "1200px", margin: "0 auto" }}>
       {/* Header */}
       <div className="responsive-header">
-        <div>
-          <p style={{ fontSize: "0.875rem", color: "var(--text-muted)", marginBottom: "0.25rem" }}>
-            Welcome, {profile.full_name}
-          </p>
-          <h1 className="font-display" style={{ fontSize: "2rem", margin: 0 }}>
-            Patient Dashboard
-          </h1>
-        </div>
+        <header id="overview" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "1rem" }}>
+          <div>
+            <h1 className="font-display dashboard-page__title" style={{ fontSize: "2rem", marginBottom: "0.25rem" }}>
+              Welcome back, {firstName}!
+            </h1>
+            <p className="text-muted dashboard-page__lead">
+              Here is your daily health summary and upcoming schedule.
+            </p>
+          </div>
+          
+          <Link href="/dashboard/patient/appointments/book" className="btn btn-primary" style={{ textDecoration: "none" }}>
+            + Book Appointment
+          </Link>
+        </header>
+
         <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
           <button type="button" className="btn btn-ghost" style={{ padding: "0.4rem", borderRadius: "50%" }} aria-label="Notifications">
             <BellIcon style={{ width: 20, height: 20 }} />
@@ -52,9 +103,9 @@ export default async function PatientDashboardPage() {
           {/* Welcome Card */}
           <div className="glass-panel" style={{ padding: "1.5rem", background: "var(--surface-cream)", position: "relative", overflow: "hidden" }}>
             <h2 style={{ fontSize: "1.35rem", fontWeight: 700, marginBottom: "0.5rem", fontFamily: "var(--font-display)" }}>
-              Good Morning, {firstName}!
+              Good Day, {firstName}!
             </h2>
-            <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", lineHeight: 1.5, maxWidth: "80%" }}>
+            <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", lineHeight: 1.5, maxWidth: "85%" }}>
               &quot;Wellness is the complete integration of body, mind, and spirit.&quot; <br/>
               Have a healthy and productive day.
             </p>
@@ -64,33 +115,7 @@ export default async function PatientDashboardPage() {
           <div className="dashboard-grid">
             
             {/* Next Appointment */}
-            <div className="glass-panel" style={{ padding: "1.5rem", display: "flex", flexDirection: "column" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "1rem" }}>
-                <h3 style={{ fontSize: "0.875rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--accent-forest)" }}>
-                  Next Appointment
-                </h3>
-              </div>
-              <h4 style={{ fontSize: "1.125rem", fontWeight: 700, marginBottom: "0.25rem", fontFamily: "var(--font-display)" }}>
-                Telehealth Consult
-              </h4>
-              <p style={{ color: "var(--text-muted)", fontSize: "0.875rem", marginBottom: "1rem" }}>
-                Dr. Shivansh A. Pandey
-              </p>
-              
-              <div style={{ display: "flex", alignItems: "center", gap: "0.45rem", color: "var(--text-secondary)", fontSize: "0.8125rem", marginBottom: "1.5rem" }}>
-                <ClockIcon style={{ width: 14, height: 14, color: "var(--accent-forest)" }} /> Today @ 2:00 PM
-              </div>
-              
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "auto" }}>
-                <button disabled className="btn btn-primary" style={{ padding: "0.45rem 0.9rem", fontSize: "0.8125rem", display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
-                  <VideoIcon style={{ width: 14, height: 14 }} /> Video Room
-                </button>
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: "0.625rem", color: "var(--text-muted)", textTransform: "uppercase" }}>Queue</div>
-                  <div style={{ fontSize: "0.875rem", fontWeight: 600 }}>Token #04</div>
-                </div>
-              </div>
-            </div>
+            <NextAppointmentCard patientId={profile.id} />
 
             {/* Recent Prescriptions */}
             <div className="glass-panel" style={{ padding: "1.5rem" }}>
@@ -98,31 +123,23 @@ export default async function PatientDashboardPage() {
                 <h3 style={{ fontSize: "0.875rem", fontWeight: 700, color: "var(--accent-forest)" }}>
                   Recent Prescriptions
                 </h3>
-                <span style={{ fontSize: "0.75rem", color: "var(--accent-forest)", fontWeight: 700, cursor: "pointer" }}>View All</span>
+                <Link href="/dashboard/patient/prescriptions" style={{ fontSize: "0.75rem", color: "var(--accent-forest)", fontWeight: 700 }}>View All</Link>
               </div>
               
               <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "0.5rem", borderBottom: "1px solid var(--border-subtle)" }}>
-                  <div>
-                    <div style={{ fontSize: "0.9375rem", fontWeight: 600 }}>Amoxicillin 500mg</div>
-                    <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>1 capsule 3x daily • 7 days</div>
-                  </div>
-                  <FileTextIcon style={{ width: 16, height: 16, color: "var(--text-muted)" }} />
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "0.5rem", borderBottom: "1px solid var(--border-subtle)" }}>
-                  <div>
-                    <div style={{ fontSize: "0.9375rem", fontWeight: 600 }}>Telmisartan 40mg</div>
-                    <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>1 tablet morning • 30 days</div>
-                  </div>
-                  <FileTextIcon style={{ width: 16, height: 16, color: "var(--text-muted)" }} />
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div>
-                    <div style={{ fontSize: "0.9375rem", fontWeight: 600 }}>Metformin 500mg</div>
-                    <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>1 tablet after meals • 30 days</div>
-                  </div>
-                  <FileTextIcon style={{ width: 16, height: 16, color: "var(--text-muted)" }} />
-                </div>
+                {recentPrescriptions.length === 0 ? (
+                  <div style={{ fontSize: "0.875rem", color: "var(--text-muted)" }}>No recent prescriptions on file.</div>
+                ) : (
+                  recentPrescriptions.map((rx) => (
+                    <div key={rx.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border-subtle)", paddingBottom: "0.5rem" }}>
+                      <div>
+                        <div style={{ fontSize: "0.9375rem", fontWeight: 600 }}>{rx.prescription?.split('\n')[0] || "Prescription"}</div>
+                        <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Dr. {rx.profiles?.full_name} • {new Date(rx.created_at).toLocaleDateString()}</div>
+                      </div>
+                      <FileTextIcon style={{ width: 16, height: 16, color: "var(--text-muted)" }} />
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
@@ -135,9 +152,7 @@ export default async function PatientDashboardPage() {
             <h3 style={{ fontSize: "1rem", fontWeight: 700, fontFamily: "var(--font-display)" }}>
               Health Vitals
             </h3>
-            <select disabled style={{ background: "var(--surface-subtle)", border: "1.5px solid var(--border-dark)", color: "var(--text-primary)", padding: "0.25rem 0.5rem", borderRadius: "6px", fontSize: "0.75rem", fontWeight: 600 }}>
-              <option>Last 7 days</option>
-            </select>
+            <LogVitalsWrapper patientId={profile.id} />
           </div>
 
           <div style={{ flex: 1, position: "relative", minHeight: "180px", borderBottom: "1.5px solid var(--border-subtle)", borderLeft: "1.5px solid var(--border-subtle)", padding: "1rem 0 0 1rem", marginBottom: "2rem" }}>
@@ -163,15 +178,15 @@ export default async function PatientDashboardPage() {
           <div className="responsive-flex-col" style={{ borderTop: "1.5px solid var(--border-subtle)", paddingTop: "1rem", gap: "1.5rem" }}>
             <div>
               <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.25rem", fontWeight: 700 }}>Heart Rate</div>
-              <div style={{ fontSize: "1.25rem", fontWeight: 700, fontFamily: "var(--font-display)" }}>82 <span style={{ fontSize: "0.75rem", fontWeight: 400, color: "var(--text-muted)" }}>bpm</span></div>
+              <div style={{ fontSize: "1.25rem", fontWeight: 700, fontFamily: "var(--font-display)" }}>{latestVitals.heart_rate || 0} <span style={{ fontSize: "0.75rem", fontWeight: 400, color: "var(--text-muted)" }}>bpm</span></div>
             </div>
             <div>
               <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.25rem", fontWeight: 700 }}>Blood Pressure</div>
-              <div style={{ fontSize: "1.25rem", fontWeight: 700, fontFamily: "var(--font-display)" }}>118/76 <span style={{ fontSize: "0.75rem", fontWeight: 400, color: "var(--text-muted)" }}>mmHg</span></div>
+              <div style={{ fontSize: "1.25rem", fontWeight: 700, fontFamily: "var(--font-display)" }}>{latestVitals.blood_pressure_systolic || 0}/{latestVitals.blood_pressure_diastolic || 0} <span style={{ fontSize: "0.75rem", fontWeight: 400, color: "var(--text-muted)" }}>mmHg</span></div>
             </div>
             <div>
               <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.25rem", fontWeight: 700 }}>Steps Today</div>
-              <div style={{ fontSize: "1.25rem", fontWeight: 700, fontFamily: "var(--font-display)" }}>7,850</div>
+              <div style={{ fontSize: "1.25rem", fontWeight: 700, fontFamily: "var(--font-display)" }}>{latestVitals.steps ? latestVitals.steps.toLocaleString() : 0}</div>
             </div>
           </div>
         </div>
@@ -185,50 +200,38 @@ export default async function PatientDashboardPage() {
         
         <div className="table-responsive">
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem", minWidth: "600px" }}>
-          <thead>
-            <tr style={{ color: "var(--text-muted)", borderBottom: "1.5px solid var(--border-dark)", textAlign: "left", fontSize: "0.75rem" }}>
-              <th style={{ padding: "0.75rem 0", fontWeight: 700 }}>Visit Date</th>
-              <th style={{ padding: "0.75rem 0", fontWeight: 700 }}>Reason</th>
-              <th style={{ padding: "0.75rem 0", fontWeight: 700 }}>Doctor</th>
-              <th style={{ padding: "0.75rem 0", fontWeight: 700 }}>Summary</th>
-              <th style={{ padding: "0.75rem 0", fontWeight: 700, textAlign: "right" }}>Records</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr style={{ borderBottom: "1px solid var(--border-subtle)" }}>
-              <td style={{ padding: "0.85rem 0", fontWeight: 600 }}>Oct 14</td>
-              <td>Check-up</td>
-              <td>Dr. Shivansh</td>
-              <td style={{ color: "var(--text-muted)" }}>Routine physical check-up</td>
-              <td style={{ textAlign: "right" }}>
-                <span style={{ color: "var(--accent-forest)", fontWeight: 600, fontSize: "0.8125rem" }}>
-                  PDF Available
-                </span>
-              </td>
-            </tr>
-            <tr style={{ borderBottom: "1px solid var(--border-subtle)" }}>
-              <td style={{ padding: "0.85rem 0", fontWeight: 600 }}>Oct 02</td>
-              <td>Cold / Viral</td>
-              <td>Dr. Shivansh</td>
-              <td style={{ color: "var(--text-muted)" }}>Prescription provided for flu</td>
-              <td style={{ textAlign: "right" }}>
-                <span style={{ color: "var(--accent-forest)", fontWeight: 600, fontSize: "0.8125rem" }}>
-                  PDF Available
-                </span>
-              </td>
-            </tr>
-            <tr>
-              <td style={{ padding: "0.85rem 0", fontWeight: 600 }}>Sep 20</td>
-              <td>Annual Screening</td>
-              <td>Dr. Shivansh</td>
-              <td style={{ color: "var(--text-muted)" }}>Comprehensive health screening</td>
-              <td style={{ textAlign: "right" }}>
-                <span style={{ color: "var(--accent-forest)", fontWeight: 600, fontSize: "0.8125rem" }}>
-                  PDF Available
-                </span>
-              </td>
-            </tr>
-          </tbody>
+            <thead>
+              <tr style={{ color: "var(--text-muted)", borderBottom: "1.5px solid var(--border-dark)", textAlign: "left", fontSize: "0.75rem" }}>
+                <th style={{ padding: "0.75rem 0", fontWeight: 700 }}>Visit Date</th>
+                <th style={{ padding: "0.75rem 0", fontWeight: 700 }}>Reason</th>
+                <th style={{ padding: "0.75rem 0", fontWeight: 700 }}>Doctor</th>
+                <th style={{ padding: "0.75rem 0", fontWeight: 700 }}>Summary</th>
+                <th style={{ padding: "0.75rem 0", fontWeight: 700, textAlign: "right" }}>Records</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pastVisits.length === 0 ? (
+                <tr>
+                  <td colSpan={5} style={{ padding: "1rem 0", textAlign: "center", color: "var(--text-muted)" }}>
+                    No past visits found.
+                  </td>
+                </tr>
+              ) : (
+                pastVisits.map((visit) => (
+                  <tr key={visit.id} style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                    <td style={{ padding: "0.85rem 0", fontWeight: 600 }}>{new Date(visit.created_at).toLocaleDateString()}</td>
+                    <td>{visit.appointments?.reason || "General Checkup"}</td>
+                    <td>Dr. {visit.profiles?.full_name || "Shivansh A. Pandey"}</td>
+                    <td style={{ color: "var(--text-muted)" }}>{visit.diagnosis || "Consultation complete"}</td>
+                    <td style={{ textAlign: "right" }}>
+                      <Link href="/dashboard/patient/records" className="btn btn-secondary" style={{ padding: "0.25rem 0.65rem", fontSize: "0.75rem", textDecoration: "none" }}>
+                        View Details
+                      </Link>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
           </table>
         </div>
       </div>

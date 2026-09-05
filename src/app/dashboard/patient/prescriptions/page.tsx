@@ -1,163 +1,96 @@
-"use client";
+import { getCurrentProfile } from "@/lib/auth/session";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { FileTextIcon } from "@/components/ui/Icons";
 
-import { useState } from "react";
+export const dynamic = 'force-dynamic';
 
-export default function PrescriptionsPage() {
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+export default async function PrescriptionsPage() {
+  const profile = await getCurrentProfile();
+  if (!profile || profile.role !== "patient") redirect("/?auth=login");
 
-  const mockPrescriptions = [
-    {
-      id: "Rx1",
-      dateIssued: "Oct 14, 2024",
-      doctor: "Dr. Emily Vance",
-      status: "Active",
-      primaryMedicine: "Amoxicillin 500mg",
-      diagnosis: "Bacterial Sinusitis",
-      notes: "Take with food. Complete the full course even if feeling better.",
-      medicines: [
-        { name: "Amoxicillin", dosage: "500mg", frequency: "1 capsule 3 times a day", duration: "7 days" },
-        { name: "Ibuprofen", dosage: "400mg", frequency: "1 tablet every 6 hours as needed for pain/fever", duration: "3-5 days" }
-      ]
-    },
-    {
-      id: "Rx2",
-      dateIssued: "Sep 20, 2024",
-      doctor: "Dr. Miller",
-      status: "Active",
-      primaryMedicine: "Lisinopril 10mg",
-      diagnosis: "Hypertension",
-      notes: "Take once daily in the morning. Monitor blood pressure weekly.",
-      medicines: [
-        { name: "Lisinopril", dosage: "10mg", frequency: "1 tablet once a day", duration: "90 days" }
-      ]
-    },
-    {
-      id: "Rx3",
-      dateIssued: "Feb 10, 2024",
-      doctor: "Dr. Emily Vance",
-      status: "Completed",
-      primaryMedicine: "Azithromycin 250mg",
-      diagnosis: "Upper Respiratory Tract Infection",
-      notes: "Z-Pak. Take 2 tablets on day 1, then 1 tablet daily for 4 days.",
-      medicines: [
-        { name: "Azithromycin", dosage: "250mg", frequency: "As directed on pack", duration: "5 days" }
-      ]
+  const supabase = await createClient();
+  let prescriptions: any[] = [];
+
+  if (supabase) {
+    const { data } = await supabase
+      .from('medical_records')
+      .select(`
+        id,
+        diagnosis,
+        notes,
+        prescription,
+        created_at,
+        profiles!medical_records_doctor_id_fkey (
+          full_name
+        )
+      `)
+      .eq('patient_id', profile.id)
+      .not('prescription', 'is', null)
+      .neq('prescription', '')
+      .order('created_at', { ascending: false });
+
+    if (data) {
+      prescriptions = data;
     }
-  ];
-
-  const toggleExpand = (id: string) => {
-    setExpandedId(expandedId === id ? null : id);
-  };
+  }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "2rem", height: "100%", width: "100%", maxWidth: "1000px", margin: "0 auto" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "2rem", height: "100%", width: "100%", maxWidth: "1200px", margin: "0 auto" }}>
       <header>
         <h1 className="font-display" style={{ fontSize: "2rem", marginBottom: "0.25rem" }}>
           Prescriptions
         </h1>
         <p className="text-muted">
-          Manage your active and past medications.
+          Manage your active and past prescribed medications.
         </p>
       </header>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-        {mockPrescriptions.map((rx) => {
-          const isExpanded = expandedId === rx.id;
-          
-          return (
-            <div key={rx.id} className="glass-panel" style={{ padding: "0", overflow: "hidden", transition: "all 0.3s" }}>
-              {/* Header / Collapsed State */}
-              <div 
-                onClick={() => toggleExpand(rx.id)}
-                style={{ padding: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", background: isExpanded ? "rgba(255,255,255,0.02)" : "transparent" }}
-              >
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "0.25rem" }}>
-                    <h3 style={{ fontSize: "1.125rem", fontWeight: 600 }}>{rx.primaryMedicine}</h3>
-                    <span style={{ 
-                      fontSize: "0.75rem", 
-                      fontWeight: 600,
-                      color: rx.status === "Active" ? "var(--accent-aqua)" : "var(--text-muted)",
-                      background: "rgba(255,255,255,0.05)",
-                      padding: "0.25rem 0.75rem",
-                      borderRadius: "99px",
-                      border: "1px solid rgba(255,255,255,0.1)"
-                    }}>
-                      {rx.status}
-                    </span>
-                  </div>
-                  <div style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}>
-                    Prescribed by {rx.doctor} on {rx.dateIssued}
-                  </div>
-                </div>
-                
-                <div style={{ color: "var(--text-muted)", transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.3s" }}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
-                </div>
-              </div>
-
-              {/* Expanded State */}
-              {isExpanded && (
-                <div style={{ padding: "0 1.5rem 1.5rem 1.5rem", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
-                  
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginTop: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
-                    <div>
-                      <div style={{ fontSize: "0.875rem", color: "var(--text-muted)", marginBottom: "0.25rem" }}>Diagnosis</div>
-                      <div style={{ fontWeight: 500 }}>{rx.diagnosis}</div>
-                    </div>
-                    
-                    <div style={{ display: "flex", gap: "1rem" }}>
-                      <button disabled className="btn btn-ghost" style={{ padding: "0.5rem 1rem", fontSize: "0.875rem", borderRadius: "99px", border: "1px solid rgba(255,255,255,0.2)" }}>
-                        Share on WhatsApp
-                      </button>
-                      <button disabled className="btn" style={{ padding: "0.5rem 1rem", fontSize: "0.875rem", borderRadius: "99px", background: "var(--accent-aqua)", color: "#000", fontWeight: 600, border: "none" }}>
-                        Download PDF
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Medicines Table */}
-                  <div style={{ marginTop: "2rem" }}>
-                    <h4 style={{ fontSize: "0.875rem", fontWeight: 600, marginBottom: "1rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>Medications</h4>
-                    <div className="table-responsive">
-                      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
-                        <thead>
-                          <tr style={{ color: "var(--text-muted)", borderBottom: "1px solid rgba(255,255,255,0.1)", textAlign: "left" }}>
-                            <th style={{ padding: "0.5rem 0", fontWeight: 400 }}>Medicine</th>
-                            <th style={{ padding: "0.5rem 0", fontWeight: 400 }}>Dosage</th>
-                            <th style={{ padding: "0.5rem 0", fontWeight: 400 }}>Frequency</th>
-                            <th style={{ padding: "0.5rem 0", fontWeight: 400 }}>Duration</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {rx.medicines.map((med, idx) => (
-                            <tr key={idx} style={{ borderBottom: idx === rx.medicines.length - 1 ? "none" : "1px solid rgba(255,255,255,0.05)" }}>
-                              <td style={{ padding: "1rem 0", fontWeight: 500 }}>{med.name}</td>
-                              <td style={{ padding: "1rem 0" }}>{med.dosage}</td>
-                              <td style={{ padding: "1rem 0" }}>{med.frequency}</td>
-                              <td style={{ padding: "1rem 0" }}>{med.duration}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
-                  {/* Notes */}
-                  {rx.notes && (
-                    <div style={{ marginTop: "1.5rem", padding: "1rem", background: "rgba(255,255,255,0.02)", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)" }}>
-                      <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.25rem" }}>Doctor&apos;s Notes</div>
-                      <p style={{ fontSize: "0.875rem", lineHeight: 1.5 }}>{rx.notes}</p>
-                    </div>
-                  )}
-
-                </div>
-              )}
+        {prescriptions.length === 0 ? (
+          <div className="glass-panel" style={{ padding: "3rem", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "360px" }}>
+            <div style={{ width: 64, height: 64, borderRadius: 14, background: "var(--surface-subtle)", border: "2px solid var(--border-dark)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--accent-forest)", marginBottom: "1rem" }}>
+              <FileTextIcon style={{ width: 32, height: 32 }} />
             </div>
-          );
-        })}
+            <h2 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "0.5rem", fontFamily: "var(--font-display)" }}>No Prescriptions Found</h2>
+            <p className="text-muted" style={{ maxWidth: "400px", fontSize: "0.9375rem" }}>Your doctor will issue official digital prescriptions after your consultation.</p>
+          </div>
+        ) : (
+          prescriptions.map((rx) => {
+            const dateObj = new Date(rx.created_at);
+            return (
+              <div key={rx.id} className="glass-panel" style={{ padding: "2rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "1.5px solid var(--border-dark)", paddingBottom: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
+                  <div>
+                    <h3 style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--accent-forest)", marginBottom: "0.25rem", fontFamily: "var(--font-display)" }}>
+                      {rx.diagnosis || "Prescription"}
+                    </h3>
+                    <div style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}>
+                      Prescribed by Dr. {rx.profiles?.full_name || "Shivansh A. Pandey"} • {dateObj.toLocaleDateString()}
+                    </div>
+                  </div>
+                  <span className="clinic-stamp clinic-stamp--verified" style={{ fontSize: "0.75rem" }}>
+                    Verified Rx
+                  </span>
+                </div>
+
+                <div>
+                  <h4 style={{ fontSize: "0.8125rem", fontWeight: 700, marginBottom: "0.4rem", color: "var(--text-primary)", textTransform: "uppercase", letterSpacing: "0.02em" }}>Prescribed Medications</h4>
+                  <div style={{ padding: "1rem", background: "var(--surface-cream)", borderRadius: "8px", border: "1.5px solid var(--border-dark)", fontSize: "0.9375rem", whiteSpace: "pre-wrap" }}>
+                    {rx.prescription}
+                  </div>
+                </div>
+
+                {rx.notes && (
+                  <div>
+                    <h4 style={{ fontSize: "0.8125rem", fontWeight: 700, marginBottom: "0.4rem", color: "var(--text-primary)", textTransform: "uppercase", letterSpacing: "0.02em" }}>Doctor&apos;s Instructions</h4>
+                    <p style={{ fontSize: "0.9375rem", lineHeight: 1.6, color: "var(--text-secondary)" }}>{rx.notes}</p>
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );

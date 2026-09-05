@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useRef, type CSSProperties, type ElementType, type ReactNode } from "react";
+import { useEffect, useRef, type ElementType, type ReactNode } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 type RevealVariant = "fade" | "pop";
 
@@ -12,6 +14,11 @@ interface ScrollRevealProps {
   variant?: RevealVariant;
   /** Stagger delay in ms when section enters viewport */
   delay?: number;
+}
+
+// Register ScrollTrigger plugin
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
 }
 
 export function ScrollReveal({
@@ -31,35 +38,45 @@ export function ScrollReveal({
       "(prefers-reduced-motion: reduce)"
     ).matches;
     if (reducedMotion) {
-      el.classList.add("is-visible");
+      el.style.opacity = "1";
+      el.style.transform = "none";
       return;
     }
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          el.classList.add("is-visible");
-          observer.unobserve(el);
-        }
-      },
-      { threshold: 0.1, rootMargin: "0px 0px -8% 0px" }
-    );
+    const ctx = gsap.context(() => {
+      const vars: gsap.TweenVars = {
+        scrollTrigger: {
+          trigger: el,
+          start: "top 92%",
+          toggleActions: "play none none none",
+        },
+        opacity: 1,
+        duration: 0.85,
+        delay: delay / 1000,
+        ease: "power3.out",
+      };
 
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
+      const fromVars: gsap.TweenVars = {
+        opacity: 0
+      };
 
-  const variantClass =
-    variant === "pop" ? "scroll-reveal--pop" : "scroll-reveal--fade";
+      if (variant === "pop") {
+        fromVars.y = 25;
+        fromVars.scale = 0.97;
+      } else {
+        fromVars.y = 45;
+      }
 
-  const style: CSSProperties | undefined =
-    delay > 0 ? ({ "--reveal-delay": `${delay}ms` } as CSSProperties) : undefined;
+      gsap.fromTo(el, fromVars, vars);
+    }, ref);
+
+    return () => ctx.revert();
+  }, [variant, delay]);
 
   return (
     <Tag
       ref={ref}
-      className={`scroll-reveal ${variantClass} ${className}`.trim()}
-      style={style}
+      className={`scroll-reveal-init ${className}`.trim()}
     >
       {children}
     </Tag>
