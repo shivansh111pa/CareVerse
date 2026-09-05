@@ -2,16 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
-import { useSearchParams, useRouter } from "next/navigation";
-import { GlassPanel } from "@/components/ui/GlassPanel";
-import { LiquidGlassLayers } from "@/components/ui/LiquidGlassLayers";
-import { useLiquidGlassSpotlight } from "@/hooks/useLiquidGlassSpotlight";
+import { useSearchParams } from "next/navigation";
 import {
   loginAction,
   signupAction,
   resetPasswordAction,
   googleSignInAction,
 } from "@/app/actions/auth";
+import { StethoscopeIcon } from "@/components/ui/Icons";
 import type { AuthFormState, AuthTab } from "@/types";
 
 const initialState: AuthFormState = {};
@@ -34,7 +32,12 @@ function TabButton({
         onClick();
         e.currentTarget.blur();
       }}
-      style={{ flex: 1, borderRadius: 10, padding: "0.5rem 1rem" }}
+      style={{
+        flex: 1,
+        borderRadius: "8px",
+        padding: "0.55rem 0.75rem",
+        fontSize: "0.875rem",
+      }}
     >
       {label}
     </button>
@@ -67,17 +70,19 @@ function SubmitButton({
 
 function GoogleOAuthSection({ label }: { label: string }) {
   return (
-    <div style={{ marginTop: "1rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
+    <div style={{ marginTop: "1rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-        <div style={{ flex: 1, height: "1px", background: "rgba(255,255,255,0.1)" }}></div>
-        <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", textTransform: "uppercase" }}>Or</span>
-        <div style={{ flex: 1, height: "1px", background: "rgba(255,255,255,0.1)" }}></div>
+        <div style={{ flex: 1, height: "1.5px", background: "var(--border-subtle)" }}></div>
+        <span style={{ fontSize: "0.6875rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.04em", fontWeight: 700 }}>
+          Or continue with
+        </span>
+        <div style={{ flex: 1, height: "1.5px", background: "var(--border-subtle)" }}></div>
       </div>
       <form action={googleSignInAction}>
         <button
           type="submit"
-          className="btn btn-ghost"
-          style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", justifyContent: "center", alignItems: "center", gap: "0.5rem" }}
+          className="btn btn-secondary"
+          style={{ width: "100%", display: "flex", justifyContent: "center", alignItems: "center", gap: "0.65rem", fontSize: "0.875rem" }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -93,7 +98,6 @@ function GoogleOAuthSection({ label }: { label: string }) {
 }
 
 function LoginForm() {
-  const router = useRouter();
   const [state, formAction] = useFormState(loginAction, initialState);
 
   useEffect(() => {
@@ -105,10 +109,10 @@ function LoginForm() {
   return (
     <>
       <form key="login" action={formAction} className="auth-form-pane">
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
           <div className="form-field">
             <label className="form-label" htmlFor="login-email">
-              Email
+              Patient / Doctor Email
             </label>
             <input
               id="login-email"
@@ -117,7 +121,7 @@ function LoginForm() {
               autoComplete="email"
               required
               className="glass-input"
-              placeholder="you@example.com"
+              placeholder="name@example.com"
             />
           </div>
           <div className="form-field">
@@ -136,13 +140,13 @@ function LoginForm() {
           </div>
           {state?.error && <p className="form-error" role="alert">{state.error}</p>}
           <SubmitButton
-            idleLabel="Sign in"
+            idleLabel="Sign In to Portal →"
             pendingLabel="Signing in…"
             style={{ width: "100%", marginTop: "0.25rem" }}
           />
         </div>
       </form>
-      <GoogleOAuthSection label="Continue with Google" />
+      <GoogleOAuthSection label="Sign in with Google" />
     </>
   );
 }
@@ -153,10 +157,10 @@ function SignupForm() {
   return (
     <>
       <form key="signup" action={formAction} className="auth-form-pane">
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
           <div className="form-field">
             <label className="form-label" htmlFor="signup-name">
-              Full name
+              Patient Full Name
             </label>
             <input
               id="signup-name"
@@ -165,12 +169,12 @@ function SignupForm() {
               autoComplete="name"
               required
               className="glass-input"
-              placeholder="Your full name"
+              placeholder="e.g. Rahul Sharma"
             />
           </div>
           <div className="form-field">
             <label className="form-label" htmlFor="signup-phone">
-              Phone <span className="text-muted">(optional)</span>
+              Mobile Number <span className="text-muted">(for SMS reminders)</span>
             </label>
             <input
               id="signup-phone"
@@ -178,12 +182,12 @@ function SignupForm() {
               type="tel"
               autoComplete="tel"
               className="glass-input"
-              placeholder="+91 …"
+              placeholder="+91 98765 43210"
             />
           </div>
           <div className="form-field">
             <label className="form-label" htmlFor="signup-email">
-              Email
+              Email Address
             </label>
             <input
               id="signup-email"
@@ -192,12 +196,12 @@ function SignupForm() {
               autoComplete="email"
               required
               className="glass-input"
-              placeholder="you@example.com"
+              placeholder="patient@example.com"
             />
           </div>
           <div className="form-field">
             <label className="form-label" htmlFor="signup-password">
-              Password
+              Create Password
             </label>
             <input
               id="signup-password"
@@ -207,15 +211,17 @@ function SignupForm() {
               required
               minLength={6}
               className="glass-input"
-              placeholder="At least 6 characters"
+              placeholder="Min. 6 characters"
             />
           </div>
           {state?.error && <p className="form-error" role="alert">{state.error}</p>}
           {state?.success && (
-            <p className="form-success" role="status">{state.success}</p>
+            <p className="form-success" style={{ color: "var(--accent-forest)", fontWeight: 600, fontSize: "0.875rem", background: "var(--accent-forest-light)", padding: "0.5rem", borderRadius: "8px", border: "1px solid var(--accent-forest)" }} role="status">
+              {state.success}
+            </p>
           )}
           <SubmitButton
-            idleLabel="Create account"
+            idleLabel="Create Patient Account"
             pendingLabel="Creating account…"
             style={{ width: "100%", marginTop: "0.25rem" }}
           />
@@ -233,11 +239,11 @@ function ResetForm({ onBack }: { onBack: () => void }) {
     <form key="reset" action={formAction} className="auth-form-pane">
       <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
         <p className="text-muted" style={{ fontSize: "0.875rem", lineHeight: 1.5 }}>
-          Enter your email and we&apos;ll send a Supabase password-reset link.
+          Enter your registered email address to receive secure password recovery instructions.
         </p>
         <div className="form-field">
           <label className="form-label" htmlFor="reset-email">
-            Email
+            Account Email
           </label>
           <input
             id="reset-email"
@@ -246,21 +252,21 @@ function ResetForm({ onBack }: { onBack: () => void }) {
             autoComplete="email"
             required
             className="glass-input"
-            placeholder="you@example.com"
+            placeholder="patient@example.com"
           />
         </div>
         {state?.error && <p className="form-error" role="alert">{state.error}</p>}
         {state?.success && (
-          <p className="form-success" role="status">{state.success}</p>
+          <p className="form-success" style={{ color: "var(--accent-forest)", fontWeight: 600, fontSize: "0.875rem" }} role="status">{state.success}</p>
         )}
-        <SubmitButton idleLabel="Send reset link" pendingLabel="Sending…" style={{ width: "100%" }} />
+        <SubmitButton idleLabel="Send Recovery Link" pendingLabel="Sending…" style={{ width: "100%" }} />
         <button
           type="button"
           className="btn btn-ghost"
           onClick={onBack}
           style={{ width: "100%" }}
         >
-          Back to sign in
+          ← Back to Sign In
         </button>
       </div>
     </form>
@@ -271,7 +277,6 @@ export function AuthPanel() {
   const searchParams = useSearchParams();
   const [tab, setTab] = useState<AuthTab>("login");
   const [showReset, setShowReset] = useState(false);
-  const { ref, handlers } = useLiquidGlassSpotlight();
 
   useEffect(() => {
     const authParam = searchParams.get("auth");
@@ -280,44 +285,32 @@ export function AuthPanel() {
   }, [searchParams]);
 
   return (
-    <div
-      ref={ref}
-      className="auth-panel-wrap liquid-glass"
-      {...handlers}
-    >
-      <GlassPanel
-        variant="auth"
-        className="pop-in-delayed liquid-glass__panel"
-        style={{
-          position: "relative",
-          zIndex: 1,
-          padding: "1.75rem",
-          width: "100%",
-          maxWidth: 420,
-        }}
-      >
-        <LiquidGlassLayers />
-        <div className="liquid-glass__content">
+    <div className="auth-panel-wrap">
+      <div className="glass-panel glass-panel--auth auth-panel">
+        <div className="auth-panel__header">
+          <div>
+            <span className="clinic-stamp clinic-stamp--verified" style={{ fontSize: "0.6875rem", padding: "0.2rem 0.5rem" }}>
+              Secure Medical Portal
+            </span>
+            <h2 className="auth-panel__title" style={{ marginTop: "0.35rem" }}>
+              Patient & Doctor Access
+            </h2>
+          </div>
+          <div style={{ width: 36, height: 36, borderRadius: "8px", background: "var(--accent-forest-light)", border: "1.5px solid var(--accent-forest)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--accent-forest)" }}>
+            <StethoscopeIcon style={{ width: 20, height: 20 }} />
+          </div>
+        </div>
 
         {!showReset ? (
           <>
-            <div
-              style={{
-                display: "flex",
-                gap: "0.25rem",
-                padding: "0.25rem",
-                background: "rgba(0,0,0,0.15)",
-                borderRadius: 12,
-                marginBottom: "1.5rem",
-              }}
-            >
+            <div className="auth-tabs">
               <TabButton
-                label="Log in"
+                label="Sign In"
                 active={tab === "login"}
                 onClick={() => setTab("login")}
               />
               <TabButton
-                label="Sign up"
+                label="New Patient Register"
                 active={tab === "signup"}
                 onClick={() => setTab("signup")}
               />
@@ -326,25 +319,28 @@ export function AuthPanel() {
             {tab === "login" ? <LoginForm /> : <SignupForm />}
 
             {tab === "login" && (
-              <button
-                type="button"
-                className="btn btn-ghost"
-                onClick={() => setShowReset(true)}
-                style={{
-                  width: "100%",
-                  marginTop: "1rem",
-                  fontSize: "0.8125rem",
-                }}
-              >
-                Forgot password?
-              </button>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "0.75rem" }}>
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  onClick={() => setShowReset(true)}
+                  style={{
+                    fontSize: "0.75rem",
+                    padding: "0.25rem 0.5rem",
+                  }}
+                >
+                  Forgot password?
+                </button>
+                <span className="text-muted" style={{ fontSize: "0.6875rem", fontWeight: 600 }}>
+                  256-Bit SSL Encrypted
+                </span>
+              </div>
             )}
           </>
         ) : (
           <ResetForm onBack={() => setShowReset(false)} />
         )}
-        </div>
-      </GlassPanel>
+      </div>
     </div>
   );
 }

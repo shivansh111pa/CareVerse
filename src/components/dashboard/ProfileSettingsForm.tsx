@@ -226,7 +226,7 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
                 </div>
 
                 <div className="form-field">
-                  <label className="form-label" htmlFor="height">Height (e.g. 5'10")</label>
+                  <label className="form-label" htmlFor="height">Height (e.g. 5&apos;10&quot;)</label>
                   <input 
                     id="height"
                     name="height"

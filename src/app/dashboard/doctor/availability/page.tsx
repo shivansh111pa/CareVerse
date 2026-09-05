@@ -1,11 +1,10 @@
 import { getCurrentProfile } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 import { AvailabilityEditor } from "@/components/dashboard/doctor/AvailabilityEditor";
+
 export default async function DoctorAvailabilityPage() {
   const profile = await getCurrentProfile();
   if (!profile || profile.role !== "doctor") redirect("/?auth=login");
-
-  const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
   return (
     <div className="dashboard-page" style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>

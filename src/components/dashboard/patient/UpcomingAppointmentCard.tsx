@@ -2,6 +2,7 @@ import {
   DashboardEmptyState,
   DashboardModuleCard,
 } from "@/components/dashboard/shared/DashboardModuleCard";
+import { CalendarIcon } from "@/components/ui/Icons";
 
 interface UpcomingAppointmentCardProps {
   patientId: string;
@@ -19,7 +20,7 @@ export function UpcomingAppointmentCard({ patientId }: UpcomingAppointmentCardPr
       subtitle="Booking module coming soon"
     >
       <DashboardEmptyState
-        icon="📅"
+        icon={<CalendarIcon style={{ width: 22, height: 22 }} />}
         title="No upcoming visit"
         description="Book an appointment to see your next scheduled time here."
       />

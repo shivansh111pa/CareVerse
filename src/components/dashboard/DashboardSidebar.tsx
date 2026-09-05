@@ -25,41 +25,41 @@ export function DashboardSidebar({ profile }: DashboardSidebarProps) {
   return (
     <aside className="dashboard-sidebar glass-panel glass-panel--calm">
       <div className="dashboard-sidebar__brand">
-        <span className="font-display dashboard-sidebar__logo">CareVerse</span>
-        <span className="font-mono dashboard-sidebar__role">{roleLabel}</span>
+        <span className="dashboard-sidebar__logo">CareVerse</span>
+        <span className="dashboard-sidebar__role">{roleLabel}</span>
       </div>
 
-      <Link href={settingsHref} className="dashboard-sidebar__user" style={{ display: "flex", alignItems: "center", gap: "0.75rem", textDecoration: "none", color: "inherit" }}>
+      <Link href={settingsHref} className="dashboard-sidebar__user" style={{ display: "flex", alignItems: "center", gap: "0.75rem", textDecoration: "none", color: "inherit", padding: "0.5rem", borderRadius: "8px" }}>
         {profile.avatar_url ? (
           <Image
             src={profile.avatar_url}
-            alt={profile.full_name}
-            width={40}
-            height={40}
-            style={{ width: "40px", height: "40px", borderRadius: "50%", objectFit: "cover", border: "1.5px solid var(--accent-aqua)" }}
+            alt={profile.full_name || "User Avatar"}
+            width={38}
+            height={38}
+            style={{ width: "38px", height: "38px", borderRadius: "50%", objectFit: "cover", border: "1.5px solid var(--border-dark)" }}
           />
         ) : (
           <div style={{
-            width: "40px",
-            height: "40px",
+            width: "38px",
+            height: "38px",
             borderRadius: "50%",
-            background: "rgba(110, 231, 222, 0.15)",
-            border: "1.5px solid rgba(110, 231, 222, 0.3)",
+            background: "var(--accent-forest-light)",
+            border: "1.5px solid var(--accent-forest)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            fontSize: "0.875rem",
-            fontWeight: 600,
-            color: "var(--accent-aqua)"
+            fontSize: "0.8125rem",
+            fontWeight: 700,
+            color: "var(--accent-forest)"
           }}>
             {initials}
           </div>
         )}
         <div>
-          <p className="dashboard-sidebar__name" style={{ margin: 0, fontSize: "0.9375rem", fontWeight: 600 }}>
+          <p className="dashboard-sidebar__name" style={{ margin: 0, fontSize: "0.9375rem", fontWeight: 700 }}>
             {profile.full_name || "User"}
           </p>
-          <p className="font-mono text-muted dashboard-sidebar__meta" style={{ margin: 0, fontSize: "0.75rem" }}>
+          <p className="text-muted dashboard-sidebar__meta" style={{ margin: 0, fontSize: "0.75rem" }}>
             {roleLabel} portal
           </p>
         </div>

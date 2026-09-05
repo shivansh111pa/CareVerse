@@ -2,6 +2,7 @@ import { getCurrentProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { ClockIcon, VideoIcon, CalendarIcon } from "@/components/ui/Icons";
 
 export default async function AppointmentsPage() {
   const profile = await getCurrentProfile();
@@ -37,70 +38,68 @@ export default async function AppointmentsPage() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "2rem", height: "100%", width: "100%", maxWidth: "1200px", margin: "0 auto" }}>
-      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "1rem" }}>
+      <header className="responsive-header">
         <div>
           <h1 className="font-display" style={{ fontSize: "2rem", marginBottom: "0.25rem" }}>
             My Appointments
           </h1>
           <p className="text-muted">
-            Manage your upcoming and past visits.
+            Manage your upcoming visits and telehealth sessions.
           </p>
         </div>
-        
-        <Link href="/dashboard/patient/appointments/book" className="btn" style={{ padding: "0.75rem 1.5rem", borderRadius: "99px", background: "var(--accent-aqua)", color: "#000", fontWeight: 600, border: "none", textDecoration: "none" }}>
-          + Book Appointment
+        <Link href="/dashboard/patient/appointments/book" className="btn btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: "0.45rem", textDecoration: "none" }}>
+          <CalendarIcon style={{ width: 16, height: 16 }} />
+          Book New Appointment
         </Link>
       </header>
 
-      {/* Tabs */}
-      <div style={{ display: "flex", gap: "2rem", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-        <button className="btn btn-ghost" style={{ padding: "0.75rem 0", color: "var(--text-bright)", borderBottom: "2px solid var(--accent-aqua)", borderRadius: 0 }}>
-          Upcoming
-        </button>
-        <button className="btn btn-ghost" style={{ padding: "0.75rem 0", color: "var(--text-muted)", borderRadius: 0 }}>
-          Past
-        </button>
-      </div>
-
+      {/* Grid of Appointments */}
       <div className="dashboard-grid">
-        {/* Upcoming Cards */}
         {upcomingAppointments.length === 0 ? (
-          <p style={{ color: "var(--text-muted)" }}>No upcoming appointments.</p>
+          <div className="glass-panel" style={{ padding: "2rem", gridColumn: "1 / -1", textAlign: "center" }}>
+            <p style={{ color: "var(--text-muted)", fontSize: "0.9375rem" }}>No upcoming appointments scheduled.</p>
+            <Link href="/dashboard/patient/appointments/book" className="btn btn-primary" style={{ marginTop: "1rem", display: "inline-flex", textDecoration: "none" }}>
+              Book an Appointment
+            </Link>
+          </div>
         ) : (
           upcomingAppointments.map((appt) => {
             const startDate = new Date(appt.start_time);
+            const isConfirmed = appt.status?.toLowerCase() === "confirmed";
+            const isTelehealth = appt.mode === "telehealth";
+
             return (
               <div key={appt.id} className="glass-panel" style={{ padding: "1.5rem", display: "flex", flexDirection: "column" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "1rem" }}>
-                  <span style={{ 
-                    fontSize: "0.75rem", 
-                    fontWeight: 600,
-                    color: appt.status === "confirmed" ? "var(--accent-aqua)" : "var(--accent-violet)",
-                    background: "rgba(255,255,255,0.05)",
-                    padding: "0.25rem 0.75rem",
-                    borderRadius: "99px",
-                    border: "1px solid rgba(255,255,255,0.1)"
-                  }}>
-                    {appt.status.charAt(0).toUpperCase() + appt.status.slice(1)}
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "1rem", gap: "0.5rem", flexWrap: "wrap" }}>
+                  <span className={`clinic-stamp ${isConfirmed ? "clinic-stamp--verified" : ""}`} style={{ fontSize: "0.6875rem", padding: "0.2rem 0.55rem" }}>
+                    {appt.status?.charAt(0).toUpperCase() + appt.status?.slice(1) || "Scheduled"}
                   </span>
-                  {appt.mode === "telehealth" && <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", background: "rgba(255,255,255,0.05)", padding: "0.25rem 0.75rem", borderRadius: "99px" }}>Telehealth</span>}
+                  {isTelehealth && (
+                    <span className="clinic-stamp" style={{ fontSize: "0.6875rem", padding: "0.2rem 0.55rem" }}>
+                      Telehealth
+                    </span>
+                  )}
                 </div>
                 
-                <h4 style={{ fontSize: "1.125rem", fontWeight: 600, marginBottom: "0.25rem" }}>{appt.reason || "Visit"}</h4>
-                <p style={{ color: "var(--text-muted)", fontSize: "0.875rem", marginBottom: "1rem" }}>{appt.profiles?.full_name || "Doctor"}</p>
+                <h4 style={{ fontSize: "1.125rem", fontWeight: 700, marginBottom: "0.25rem", fontFamily: "var(--font-display)" }}>
+                  {appt.reason || "General Consultation"}
+                </h4>
+                <p style={{ color: "var(--text-muted)", fontSize: "0.875rem", marginBottom: "1rem" }}>
+                  Dr. {appt.profiles?.full_name || "Shivansh A. Pandey"}
+                </p>
                 
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--text-muted)", fontSize: "0.75rem", marginBottom: "1.5rem" }}>
-                  <span>🕒</span> {startDate.toLocaleDateString()} @ {startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                <div style={{ display: "flex", alignItems: "center", gap: "0.45rem", color: "var(--text-secondary)", fontSize: "0.8125rem", marginBottom: "1.5rem" }}>
+                  <ClockIcon style={{ width: 14, height: 14, color: "var(--accent-forest)" }} /> {startDate.toLocaleDateString()} @ {startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>
                 
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "auto" }}>
-                  {appt.mode === "telehealth" ? (
-                    <button className="btn" style={{ padding: "0.5rem 1rem", fontSize: "0.875rem", borderRadius: "99px", background: "var(--accent-aqua)", color: "#000", fontWeight: 600, border: "none" }}>
-                      🎥 Video Call
+                  {isTelehealth ? (
+                    <button className="btn btn-primary" style={{ padding: "0.45rem 0.9rem", fontSize: "0.8125rem", display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
+                      <VideoIcon style={{ width: 14, height: 14 }} /> Video Room
                     </button>
                   ) : (
-                    <button className="btn btn-ghost" style={{ padding: "0.5rem 1rem", fontSize: "0.875rem", borderRadius: "99px", border: "1px solid rgba(255,255,255,0.2)" }}>
-                      Details
+                    <button className="btn btn-secondary" style={{ padding: "0.45rem 0.9rem", fontSize: "0.8125rem" }}>
+                      In-Clinic Visit
                     </button>
                   )}
                 </div>
