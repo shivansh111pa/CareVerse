@@ -55,8 +55,6 @@ CREATE POLICY "Doctors can update prescriptions"
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('prescriptions', 'prescriptions', true);
 
--- Enable RLS on storage.objects
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
 
 -- Storage RLS Policies for prescriptions bucket
 -- Note: we use (storage.foldername(name))[1] to get the patient_id folder
