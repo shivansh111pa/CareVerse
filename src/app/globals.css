@@ -40,6 +40,8 @@
   --text-secondary: #3b4e47;
   --text-muted: #5e746d;
   --text-inverse: #ffffff;
+  --text-bright: var(--text-primary);
+  --bg-deep: var(--surface-card);
 
   --font-display: "SF Pro Display", -apple-system, BlinkMacSystemFont, "SF Pro", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-body: "SF Pro Display", -apple-system, BlinkMacSystemFont, "SF Pro", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -154,6 +156,21 @@ img, svg {
   background: var(--surface-cream);
   border: 2.5px solid var(--border-dark);
   box-shadow: var(--shadow-brutal-lg);
+}
+
+.glass-input {
+  background: var(--surface-card);
+  border: 1.5px solid var(--border-dark);
+  border-radius: 8px;
+  color: var(--text-primary);
+  padding: 0.625rem 0.875rem;
+  font-family: inherit;
+  font-size: 0.9375rem;
+}
+
+.glass-input:focus {
+  outline: none;
+  border-color: var(--border-focus);
 }
 
 .glass-panel--calm {

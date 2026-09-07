@@ -66,24 +66,28 @@ export function SOSFloatingButton({ patientId }: { patientId: string }) {
       {showConfirm && (
         <div style={{
           position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: "rgba(0,0,0,0.8)", backdropFilter: "blur(4px)",
+          backgroundColor: "rgba(18, 40, 32, 0.7)", backdropFilter: "blur(4px)",
           display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000,
           padding: "1rem"
         }}>
-          <div className="glass-panel" style={{ 
-            width: "100%", maxWidth: "400px",
-            padding: "2rem", textAlign: "center",
-            borderTop: "4px solid #ff6b6b"
+          <div style={{ 
+            width: "100%", maxWidth: "420px",
+            padding: "2.25rem 2rem", textAlign: "center",
+            background: "var(--surface-card, #ffffff)",
+            border: "2.5px solid var(--border-dark, #122820)",
+            boxShadow: "var(--shadow-brutal-lg, 6px 6px 0px #122820)",
+            borderRadius: "16px",
+            borderTop: "6px solid var(--accent-terracotta, #e05a38)"
           }}>
-            <h2 style={{ fontSize: "1.5rem", fontWeight: 600, color: "#ff6b6b", marginBottom: "1rem" }}>Confirm Emergency</h2>
-            <p style={{ color: "var(--text-bright)", fontSize: "0.9375rem", marginBottom: "2rem", lineHeight: 1.5 }}>
+            <h2 style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--accent-terracotta, #e05a38)", marginBottom: "0.75rem" }}>Confirm Emergency</h2>
+            <p style={{ color: "var(--text-primary, #122820)", fontSize: "1rem", marginBottom: "2rem", lineHeight: 1.5 }}>
               Are you sure you want to trigger an SOS alert? Your doctor will be notified immediately.
             </p>
             <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
               <button 
                 onClick={() => setShowConfirm(false)}
-                className="btn btn-ghost"
-                style={{ padding: "0.75rem 1.5rem", borderRadius: "99px", flex: 1 }}
+                className="btn"
+                style={{ padding: "0.75rem 1.25rem", borderRadius: "10px", background: "transparent", border: "2px solid var(--border-dark, #122820)", color: "var(--text-primary, #122820)", fontWeight: 700, flex: 1, cursor: "pointer" }}
                 disabled={isSubmitting}
               >
                 Cancel
@@ -91,7 +95,7 @@ export function SOSFloatingButton({ patientId }: { patientId: string }) {
               <button 
                 onClick={handleConfirm}
                 className="btn"
-                style={{ padding: "0.75rem 1.5rem", borderRadius: "99px", background: "#ff6b6b", color: "white", fontWeight: 600, border: "none", flex: 1 }}
+                style={{ padding: "0.75rem 1.25rem", borderRadius: "10px", background: "var(--accent-terracotta, #e05a38)", color: "#ffffff", fontWeight: 700, border: "2px solid var(--border-dark, #122820)", boxShadow: "var(--shadow-brutal-sm, 2px 2px 0px #122820)", flex: 1.2, cursor: "pointer" }}
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "Sending..." : "Yes, Trigger SOS"}

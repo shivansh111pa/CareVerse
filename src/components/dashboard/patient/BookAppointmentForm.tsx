@@ -213,7 +213,7 @@ export function BookAppointmentForm({ patientId }: BookAppointmentFormProps) {
             value={selectedDoctorId} 
             onChange={e => setSelectedDoctorId(e.target.value)}
             className="glass-input" 
-            style={{ borderRadius: "12px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "white", padding: "0.75rem" }}
+            style={{ borderRadius: "10px", background: "var(--surface-card, #ffffff)", border: "1.5px solid var(--border-dark, #122820)", color: "var(--text-primary, #122820)", padding: "0.75rem" }}
           >
             {doctors.map(d => <option key={d.id} value={d.id} style={{ color: "black" }}>{d.full_name}</option>)}
           </select>
@@ -227,7 +227,7 @@ export function BookAppointmentForm({ patientId }: BookAppointmentFormProps) {
             value={date}
             onChange={e => setDate(e.target.value)}
             min={new Date().toISOString().split('T')[0]}
-            style={{ borderRadius: "12px" }}
+            style={{ borderRadius: "10px", background: "var(--surface-card, #ffffff)", border: "1.5px solid var(--border-dark, #122820)", color: "var(--text-primary, #122820)" }}
           />
         </div>
       </div>
@@ -235,16 +235,16 @@ export function BookAppointmentForm({ patientId }: BookAppointmentFormProps) {
       {/* Visit Type */}
       <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
         <label style={{ fontWeight: 500, fontSize: "0.9375rem" }}>Visit Type</label>
-        <div style={{ display: "flex", background: "rgba(255,255,255,0.05)", borderRadius: "99px", padding: "0.25rem", border: "1px solid rgba(255,255,255,0.1)", maxWidth: "400px" }}>
+        <div style={{ display: "flex", background: "var(--surface-subtle, #f0f4f1)", borderRadius: "10px", padding: "0.25rem", border: "1.5px solid var(--border-dark, #122820)", maxWidth: "400px" }}>
           <button 
             onClick={() => setMode("in_person")}
-            style={{ flex: 1, padding: "0.5rem", borderRadius: "99px", background: mode === "in_person" ? "var(--accent-aqua)" : "transparent", color: mode === "in_person" ? "#000" : "var(--text-bright)", fontWeight: mode === "in_person" ? 600 : 400, border: "none", fontSize: "0.875rem", cursor: "pointer" }}
+            style={{ flex: 1, padding: "0.5rem", borderRadius: "8px", background: mode === "in_person" ? "var(--accent-forest, #0b5a42)" : "transparent", color: mode === "in_person" ? "#ffffff" : "var(--text-primary, #122820)", fontWeight: 700, border: "none", fontSize: "0.875rem", cursor: "pointer" }}
           >
             In-Person
           </button>
           <button 
             onClick={() => setMode("telehealth")}
-            style={{ flex: 1, padding: "0.5rem", borderRadius: "99px", background: mode === "telehealth" ? "var(--accent-aqua)" : "transparent", color: mode === "telehealth" ? "#000" : "var(--text-bright)", fontWeight: mode === "telehealth" ? 600 : 400, border: "none", fontSize: "0.875rem", cursor: "pointer" }}
+            style={{ flex: 1, padding: "0.5rem", borderRadius: "8px", background: mode === "telehealth" ? "var(--accent-forest, #0b5a42)" : "transparent", color: mode === "telehealth" ? "#ffffff" : "var(--text-primary, #122820)", fontWeight: 700, border: "none", fontSize: "0.875rem", cursor: "pointer" }}
           >
             Telehealth
           </button>
@@ -261,7 +261,7 @@ export function BookAppointmentForm({ patientId }: BookAppointmentFormProps) {
             value={selectedSlot || ""} 
             onChange={e => setSelectedSlot(e.target.value)}
             className="glass-input" 
-            style={{ borderRadius: "12px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "white", padding: "0.75rem" }}
+            style={{ borderRadius: "10px", background: "var(--surface-card, #ffffff)", border: "1.5px solid var(--border-dark, #122820)", color: "var(--text-primary, #122820)", padding: "0.75rem" }}
           >
             <option value="" disabled style={{ color: "black" }}>Select a time</option>
             {availableSlots.map((slot) => {

@@ -190,7 +190,7 @@ export function DoctorAppointmentsList({ doctorId }: { doctorId: string }) {
                           value={appt.status}
                           onChange={(e) => updateStatus(appt.id, e.target.value)}
                           className="glass-input"
-                          style={{ padding: "0.375rem 0.75rem", fontSize: "0.8125rem", borderRadius: "8px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "white" }}
+                          style={{ padding: "0.375rem 0.75rem", fontSize: "0.8125rem", borderRadius: "8px", background: "var(--surface-card, #ffffff)", border: "1.5px solid var(--border-dark, #122820)", color: "var(--text-primary, #122820)" }}
                         >
                           <option value="scheduled" style={{ color: "black" }}>Scheduled</option>
                           <option value="completed" style={{ color: "black" }}>Completed</option>
