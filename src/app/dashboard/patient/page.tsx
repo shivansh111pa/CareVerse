@@ -9,6 +9,7 @@ import {
 import { NextAppointmentCard } from "@/components/dashboard/patient/NextAppointmentCard";
 import { createClient } from "@/lib/supabase/server";
 import { LogVitalsWrapper } from "@/components/dashboard/patient/LogVitalsWrapper";
+import { PATIENT_QUICK_ACTIONS } from "@/lib/dashboard/nav";
 
 export const dynamic = 'force-dynamic';
 
@@ -36,13 +37,11 @@ export default async function PatientDashboardPage() {
     
     if (vitalsData) latestVitals = vitalsData;
 
-    // Fetch recent prescriptions (where prescription is not null)
+    // Fetch recent prescriptions
     const { data: rxData } = await supabase
-      .from('medical_records')
-      .select('id, prescription, created_at, profiles!medical_records_doctor_id_fkey(full_name)')
+      .from('prescriptions')
+      .select('id, medicines, created_at, profiles!prescriptions_doctor_id_fkey(full_name)')
       .eq('patient_id', profile.id)
-      .not('prescription', 'is', null)
-      .neq('prescription', '')
       .order('created_at', { ascending: false })
       .limit(3);
     
@@ -111,6 +110,16 @@ export default async function PatientDashboardPage() {
             </p>
           </div>
 
+          {/* Quick Actions */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "1rem" }}>
+            {PATIENT_QUICK_ACTIONS.map((action, i) => (
+              <Link key={i} href={action.href} className="glass-panel hover-lift" style={{ padding: "1.25rem", textDecoration: "none", color: "inherit", display: "flex", flexDirection: "column", gap: "0.5rem", border: "1px solid rgba(255,255,255,0.1)" }}>
+                <div style={{ fontSize: "0.9375rem", fontWeight: 600, color: "var(--accent-aqua)" }}>{action.label}</div>
+                <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{action.description}</div>
+              </Link>
+            ))}
+          </div>
+
           {/* Sub-grid for Next Appt and Prescriptions */}
           <div className="dashboard-grid">
             
@@ -133,7 +142,7 @@ export default async function PatientDashboardPage() {
                   recentPrescriptions.map((rx) => (
                     <div key={rx.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border-subtle)", paddingBottom: "0.5rem" }}>
                       <div>
-                        <div style={{ fontSize: "0.9375rem", fontWeight: 600 }}>{rx.prescription?.split('\n')[0] || "Prescription"}</div>
+                        <div style={{ fontSize: "0.9375rem", fontWeight: 600 }}>{rx.medicines?.[0]?.name || rx.prescription?.split('\n')[0] || "Prescription"}</div>
                         <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Dr. {rx.profiles?.full_name} • {new Date(rx.created_at).toLocaleDateString()}</div>
                       </div>
                       <FileTextIcon style={{ width: 16, height: 16, color: "var(--text-muted)" }} />

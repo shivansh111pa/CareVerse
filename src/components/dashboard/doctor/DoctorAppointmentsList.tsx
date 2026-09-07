@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { MedicalRecordModal } from "./MedicalRecordModal";
+import { WritePrescriptionModal } from "./WritePrescriptionModal";
 
 interface Appointment {
   id: string;
@@ -22,6 +23,7 @@ export function DoctorAppointmentsList({ doctorId }: { doctorId: string }) {
   const [statusFilter, setStatusFilter] = useState("All Statuses");
   const [dateFilter, setDateFilter] = useState("");
   const [selectedAppt, setSelectedAppt] = useState<Appointment | null>(null);
+  const [prescriptionAppt, setPrescriptionAppt] = useState<Appointment | null>(null);
   const supabase = createClient();
 
   useEffect(() => {
@@ -195,6 +197,13 @@ export function DoctorAppointmentsList({ doctorId }: { doctorId: string }) {
                           <option value="cancelled" style={{ color: "black" }}>Cancelled</option>
                         </select>
                         <button 
+                          onClick={() => setPrescriptionAppt(appt)}
+                          className="btn btn-ghost" 
+                          style={{ padding: "0.375rem 1rem", fontSize: "0.8125rem", borderRadius: "99px", border: "1px solid rgba(255,255,255,0.2)", color: "var(--accent-aqua)" }}
+                        >
+                          Write Prescription
+                        </button>
+                        <button 
                           onClick={() => setSelectedAppt(appt)}
                           className="btn btn-ghost" 
                           style={{ padding: "0.375rem 1rem", fontSize: "0.8125rem", borderRadius: "99px", border: "1px solid rgba(255,255,255,0.2)" }}
@@ -224,6 +233,19 @@ export function DoctorAppointmentsList({ doctorId }: { doctorId: string }) {
           setAppointments(appointments.map(a => 
             a.id === selectedAppt?.id ? { ...a, status: 'completed' } : a
           ));
+        }}
+      />
+
+      <WritePrescriptionModal 
+        isOpen={!!prescriptionAppt}
+        onClose={() => setPrescriptionAppt(null)}
+        appointmentId={prescriptionAppt?.id || ""}
+        patientId={prescriptionAppt?.patient_id || ""}
+        doctorId={doctorId}
+        patientName={prescriptionAppt?.profiles?.full_name || ""}
+        doctorName="Doctor" // TODO: Pass actual doctor name if available
+        onComplete={() => {
+          // You could optionally update status to completed here as well
         }}
       />
     </div>

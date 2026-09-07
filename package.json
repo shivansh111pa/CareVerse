@@ -10,6 +10,7 @@
     "seed:doctor": "tsx --env-file=.env.local scripts/seed-doctor.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.124.0",
     "@next/font": "^14.2.15",
     "@react-pdf/renderer": "^4.3.0",
     "@supabase/ssr": "^0.6.1",

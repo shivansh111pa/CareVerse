@@ -3,6 +3,8 @@ import { getCurrentProfile } from "@/lib/auth/session";
 import { DoctorStatCards } from "@/components/dashboard/doctor/DoctorStatCards";
 import { TodayAppointmentsList } from "@/components/dashboard/doctor/TodayAppointmentsList";
 import { PatientVisitsChart } from "@/components/dashboard/doctor/PatientVisitsChart";
+import { UrgentSymptomChecks } from "@/components/dashboard/doctor/UrgentSymptomChecks";
+import { LiveEmergencies } from "@/components/dashboard/doctor/LiveEmergencies";
 
 export default async function DoctorDashboardPage() {
   const profile = await getCurrentProfile();
@@ -17,7 +19,7 @@ export default async function DoctorDashboardPage() {
   });
 
   return (
-    <div className="dashboard-page" style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+    <div className="dashboard-page page-shell" style={{ display: "flex", flexDirection: "column", gap: "2.5rem" }}>
       {/* Top Header */}
       <div className="responsive-flex-col" style={{ gap: "1rem" }}>
         <div style={{ position: "relative", width: "100%", maxWidth: "400px" }}>
@@ -25,7 +27,7 @@ export default async function DoctorDashboardPage() {
             type="text" 
             placeholder="Search patients, records..." 
             className="glass-input" 
-            style={{ paddingLeft: "2.5rem", borderRadius: "99px" }} 
+            style={{ paddingLeft: "2.5rem", borderRadius: "var(--radius-pill)" }} 
             disabled 
           />
           <svg style={{ position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)", width: "1rem", height: "1rem", color: "var(--text-muted)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,26 +41,29 @@ export default async function DoctorDashboardPage() {
             </svg>
           </button>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <div style={{ width: "2rem", height: "2rem", borderRadius: "50%", background: "var(--accent-aqua)", color: "var(--bg-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold" }}>
+            <div style={{ width: "2.25rem", height: "2.25rem", borderRadius: "50%", background: "var(--accent-forest)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontFamily: "var(--font-display)", border: "2px solid var(--border-dark)" }}>
               {profile.full_name?.[0] || "D"}
             </div>
-            <span style={{ fontSize: "0.9375rem", fontWeight: 500 }}>{profile.full_name || "Doctor"}</span>
+            <span style={{ fontSize: "0.9375rem", fontWeight: 700, fontFamily: "var(--font-display)" }}>{profile.full_name || "Doctor"}</span>
           </div>
         </div>
       </div>
 
       {/* Welcome Section */}
-      <header id="overview">
-        <h1 className="font-display dashboard-page__title" style={{ fontSize: "2rem", marginBottom: "0.25rem" }}>
-          Welcome back, {profile.full_name || "Doctor"}!
+      <header id="overview" className="glass-panel" style={{ padding: "1.5rem 2rem", background: "var(--surface-cream)" }}>
+        <h1 className="font-display dashboard-page__title" style={{ fontSize: "2.25rem", marginBottom: "0.25rem", color: "var(--text-primary)" }}>
+          Welcome back, <span className="text-forest">{profile.full_name || "Doctor"}</span>!
         </h1>
-        <p className="text-muted dashboard-page__lead">
+        <p className="text-muted dashboard-page__lead" style={{ fontWeight: 600 }}>
           {todayDate}
         </p>
       </header>
 
       {/* Stats Cards */}
       <DoctorStatCards doctorId={profile.id} />
+
+      <LiveEmergencies />
+      <UrgentSymptomChecks />
 
       {/* Chart & List Grid */}
       <div className="dashboard-grid">

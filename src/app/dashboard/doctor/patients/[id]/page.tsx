@@ -2,6 +2,7 @@ import { getCurrentProfile } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { PatientPrescriptionsTab } from "@/components/dashboard/doctor/PatientPrescriptionsTab";
 
 export default async function PatientDetailPage({ params }: { params: { id: string } }) {
   const profile = await getCurrentProfile();
@@ -14,9 +15,6 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
 
   if (supabase) {
     const { data, error } = await supabase.from("profiles").select("*").eq("id", params.id).single();
-    console.log("[PatientDetailPage] Fetching profile for id:", params.id);
-    console.log("[PatientDetailPage] Data:", data);
-    console.log("[PatientDetailPage] Error:", error);
     if (data) {
       patientProfile = data;
     }
@@ -132,6 +130,14 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
 
         {/* Right Column */}
         <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+          
+          <PatientPrescriptionsTab 
+            patientId={patient.id} 
+            doctorId={profile.id}
+            patientName={patient.name}
+            doctorName={profile.full_name || "Doctor"}
+          />
+
           <div className="glass-panel" style={{ padding: "1.5rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
               <h3 style={{ fontSize: "1rem", fontWeight: 600 }}>Recent Notes</h3>

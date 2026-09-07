@@ -3,6 +3,7 @@ import { getCurrentProfile } from "@/lib/auth/session";
 import { LiquidSurface } from "@/components/layout/LiquidSurface";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { OnboardingForm } from "@/components/dashboard/OnboardingForm";
+import { SOSFloatingButton } from "@/components/dashboard/patient/SOSFloatingButton";
 
 export default async function DashboardLayout({
   children,
@@ -29,6 +30,7 @@ export default async function DashboardLayout({
       <div className="dashboard-shell page-shell">
         <DashboardSidebar profile={profile} />
         <main className="dashboard-main">{children}</main>
+        {profile.role === "patient" && <SOSFloatingButton patientId={profile.id} />}
       </div>
     </>
   );
