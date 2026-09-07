@@ -96,7 +96,7 @@ Respond ONLY with valid JSON in the following format (do not include markdown co
 
     // Use Gemini 1.5 Flash for fast, json-structured output
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
+      model: "gemini-1.5-flash-latest",
       generationConfig: {
         responseMimeType: "application/json",
       }
