@@ -27,8 +27,8 @@ export function DashboardStatCard({
       variant="calm"
       className={`dashboard-stat-card ${accentClass[accent]}`}
     >
-      <p className="font-mono dashboard-stat-card__label">{label}</p>
-      <p className="font-mono dashboard-stat-card__value">{value}</p>
+      <p className="dashboard-stat-card__label">{label}</p>
+      <p className="dashboard-stat-card__value">{value}</p>
       {hint && <p className="text-muted dashboard-stat-card__hint">{hint}</p>}
       {children}
     </GlassPanel>

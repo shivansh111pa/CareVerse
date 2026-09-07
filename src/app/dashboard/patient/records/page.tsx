@@ -1,6 +1,7 @@
 import { getCurrentProfile } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { FileTextIcon } from "@/components/ui/Icons";
 
 export const dynamic = 'force-dynamic';
 
@@ -49,37 +50,43 @@ export default async function RecordsPage() {
 
       <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
         {records.length === 0 ? (
-          <div className="glass-panel" style={{ padding: "3rem", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "400px" }}>
-            <span style={{ fontSize: "3rem", marginBottom: "1rem" }}>📋</span>
-            <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "0.5rem" }}>No Records Found</h2>
-            <p className="text-muted" style={{ maxWidth: "400px" }}>Your doctor will add medical records here after your appointments.</p>
+          <div className="glass-panel" style={{ padding: "3rem", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "360px" }}>
+            <div style={{ width: 64, height: 64, borderRadius: 14, background: "var(--surface-subtle)", border: "2px solid var(--border-dark)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--accent-forest)", marginBottom: "1rem" }}>
+              <FileTextIcon style={{ width: 32, height: 32 }} />
+            </div>
+            <h2 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "0.5rem", fontFamily: "var(--font-display)" }}>No Records Found</h2>
+            <p className="text-muted" style={{ maxWidth: "400px", fontSize: "0.9375rem" }}>Your doctor will add medical records and clinical notes here after your appointments.</p>
           </div>
         ) : (
           records.map((record) => {
             const dateObj = new Date(record.created_at);
             return (
-              <div key={record.id} className="glass-panel" style={{ padding: "2rem", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: "1rem" }}>
+              <div key={record.id} className="glass-panel" style={{ padding: "2rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "1.5px solid var(--border-dark)", paddingBottom: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
                   <div>
-                    <h3 style={{ fontSize: "1.25rem", fontWeight: 600, color: "var(--accent-aqua)", marginBottom: "0.25rem" }}>{record.diagnosis}</h3>
-                    <div style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}>Dr. {record.profiles?.full_name} • {dateObj.toLocaleDateString()}</div>
+                    <h3 style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--accent-forest)", marginBottom: "0.25rem", fontFamily: "var(--font-display)" }}>
+                      {record.diagnosis || "Medical Consultation"}
+                    </h3>
+                    <div style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}>
+                      Dr. {record.profiles?.full_name || "Shivansh A. Pandey"} • {dateObj.toLocaleDateString()}
+                    </div>
                   </div>
-                  <div style={{ fontSize: "0.875rem", background: "rgba(255,255,255,0.05)", padding: "0.25rem 0.75rem", borderRadius: "99px" }}>
+                  <span className="clinic-stamp" style={{ fontSize: "0.75rem" }}>
                     Visit: {record.appointments?.reason || "General"}
-                  </div>
+                  </span>
                 </div>
                 
                 {record.notes && (
                   <div>
-                    <h4 style={{ fontSize: "0.875rem", fontWeight: 600, marginBottom: "0.5rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Clinical Notes</h4>
-                    <p style={{ fontSize: "0.9375rem", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{record.notes}</p>
+                    <h4 style={{ fontSize: "0.8125rem", fontWeight: 700, marginBottom: "0.4rem", color: "var(--text-primary)", textTransform: "uppercase", letterSpacing: "0.02em" }}>Clinical Notes</h4>
+                    <p style={{ fontSize: "0.9375rem", lineHeight: 1.6, whiteSpace: "pre-wrap", color: "var(--text-secondary)" }}>{record.notes}</p>
                   </div>
                 )}
 
                 {record.prescription && (
                   <div>
-                    <h4 style={{ fontSize: "0.875rem", fontWeight: 600, marginBottom: "0.5rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Prescription</h4>
-                    <div style={{ padding: "1rem", background: "rgba(255,255,255,0.02)", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.05)", fontSize: "0.9375rem", whiteSpace: "pre-wrap" }}>
+                    <h4 style={{ fontSize: "0.8125rem", fontWeight: 700, marginBottom: "0.4rem", color: "var(--text-primary)", textTransform: "uppercase", letterSpacing: "0.02em" }}>Prescription</h4>
+                    <div style={{ padding: "1rem", background: "var(--surface-cream)", borderRadius: "8px", border: "1.5px solid var(--border-dark)", fontSize: "0.9375rem", whiteSpace: "pre-wrap" }}>
                       {record.prescription}
                     </div>
                   </div>

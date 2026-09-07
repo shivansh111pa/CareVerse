@@ -1,31 +1,26 @@
-import type { Metadata } from "next";
-import { Inter, Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { SmoothScroll } from "@/components/layout/SmoothScroll";
 
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-body",
-});
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-display",
-});
-
-const ibmPlexMono = IBM_Plex_Mono({
-  weight: ["400", "500"],
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-mono",
-});
+export const viewport: Viewport = {
+  themeColor: "#0b5a42",
+  width: "device-width",
+  initialScale: 1,
+};
 
 export const metadata: Metadata = {
-  title: "CareVerse — Dr. Shivansh A. Pandey, MBBS",
+  title: "CareVerse Clinic — Dr. Shivansh A. Pandey, MBBS | Clinical & Telehealth Practice",
   description:
-    "Appointment booking and patient management for Dr. Shivansh A. Pandey, MBBS.",
+    "Official clinical care, appointment scheduling, digital prescriptions, and patient records for Dr. Shivansh A. Pandey, MBBS.",
+  keywords: [
+    "Dr Shivansh A Pandey",
+    "MBBS",
+    "Clinic",
+    "Doctor Appointment",
+    "General Physician",
+    "Telehealth",
+    "Medical Records",
+    "Prescriptions",
+  ],
 };
 
 export default function RootLayout({
@@ -34,11 +29,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${ibmPlexMono.variable}`}>
-      <body>
-        <div className="noise-overlay" />
-        <SmoothScroll>{children}</SmoothScroll>
-      </body>
+    <html lang="en">
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://fonts.cdnfonts.com/css/sf-pro-display"
+        />
+      </head>
+      <body>{children}</body>
     </html>
   );
 }
