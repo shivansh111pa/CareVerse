@@ -109,11 +109,17 @@ Respond ONLY with valid JSON in the following format (do not include markdown co
     try {
       const result = await model.generateContent(prompt);
       const responseText = result.response.text();
-      const jsonStr = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
-      aiPayload = JSON.parse(jsonStr);
-    } catch (e) {
-      console.error("Failed to parse Gemini response:", e);
-      return NextResponse.json({ error: "Failed to parse AI response" }, { status: 500 });
+      
+      try {
+        const jsonStr = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
+        aiPayload = JSON.parse(jsonStr);
+      } catch (parseError) {
+        console.error("Gemini returned invalid JSON:", responseText);
+        return NextResponse.json({ error: "Gemini returned invalid JSON format. Please try again." }, { status: 500 });
+      }
+    } catch (e: any) {
+      console.error("Gemini SDK Error:", e);
+      return NextResponse.json({ error: `Gemini Error: ${e.message || "Unknown error"}` }, { status: 500 });
     }
 
     // Validate urgency level
