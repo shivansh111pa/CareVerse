@@ -94,32 +94,40 @@ Respond ONLY with valid JSON in the following format (do not include markdown co
   "message": "Your sympathetic yet objective triage message here... This is not a diagnosis — please consult Dr. Pandey."
 }`;
 
-    // Use Gemini 1.5 Flash for fast, json-structured output
-    const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash-latest",
-      generationConfig: {
-        responseMimeType: "application/json",
-      }
-    });
-
-    // We can prepend the system instructions to the user prompt since some older generative-ai versions don't have a direct 'systemInstruction' arg, but the current one does. We'll use a combined prompt to be safe.
     const prompt = `${systemPrompt}\n\nPatient symptoms: ${symptoms}`;
 
     let aiPayload;
-    try {
-      const result = await model.generateContent(prompt);
-      const responseText = result.response.text();
-      
+    let lastError: any = null;
+    const modelNames = ["gemini-3.6-flash", "gemini-3.5-flash", "gemini-2.5-flash-lite"];
+
+    for (const modelName of modelNames) {
       try {
-        const jsonStr = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
-        aiPayload = JSON.parse(jsonStr);
-      } catch (parseError) {
-        console.error("Gemini returned invalid JSON:", responseText);
-        return NextResponse.json({ error: "Gemini returned invalid JSON format. Please try again." }, { status: 500 });
+        const model = genAI.getGenerativeModel({
+          model: modelName,
+          generationConfig: {
+            responseMimeType: "application/json",
+          }
+        });
+        const result = await model.generateContent(prompt);
+        const responseText = result.response.text();
+        
+        try {
+          const jsonStr = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
+          aiPayload = JSON.parse(jsonStr);
+          lastError = null;
+          break; // Success!
+        } catch (parseError) {
+          console.error(`Gemini (${modelName}) returned invalid JSON:`, responseText);
+          return NextResponse.json({ error: "Gemini returned invalid JSON format. Please try again." }, { status: 500 });
+        }
+      } catch (e: any) {
+        console.error(`Gemini SDK Error with model ${modelName}:`, e);
+        lastError = e;
       }
-    } catch (e: any) {
-      console.error("Gemini SDK Error:", e);
-      return NextResponse.json({ error: `Gemini Error: ${e.message || "Unknown error"}` }, { status: 500 });
+    }
+
+    if (!aiPayload) {
+      return NextResponse.json({ error: `Gemini Error: ${lastError?.message || "Unknown error"}` }, { status: 500 });
     }
 
     // Validate urgency level
