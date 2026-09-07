@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export function LiveEmergencies() {
   const [emergencies, setEmergencies] = useState<any[]>([]);
-  const supabase = createClient();
+  const supabase = createClient()!;
 
   const fetchEmergencies = async () => {
     const { data } = await supabase
@@ -49,15 +49,18 @@ export function LiveEmergencies() {
     return () => {
       supabase.removeChannel(channel);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabase]);
 
   const handleUpdateStatus = async (id: string, newStatus: string) => {
+    let updatePayload: any = { status: newStatus };
+    if (newStatus === "resolved") {
+      updatePayload.resolved_at = new Date().toISOString();
+    }
+
     const { error } = await supabase
       .from("emergencies")
-      .update({ 
-        status: newStatus,
-        ...(newStatus === "resolved" ? { resolved_at: new Date().toISOString() } : {})
-      })
+      .update(updatePayload)
       .eq("id", id);
 
     if (error) {

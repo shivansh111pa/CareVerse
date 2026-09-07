@@ -33,7 +33,8 @@ export function PatientPrescriptionsTab({
 
   useEffect(() => {
     fetchPrescriptions();
-  }, [patientId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [patientId, supabase]);
 
   return (
     <div className="glass-panel" style={{ padding: "1.5rem", marginTop: "1.5rem" }}>

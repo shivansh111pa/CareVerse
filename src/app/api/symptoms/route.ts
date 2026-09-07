@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from "@/lib/supabase/server";
 
 // We use the service role key to insert records safely from the server.
@@ -71,13 +71,13 @@ export async function POST(req: Request) {
       });
     }
 
-    // 2. Call Anthropic API
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+    // 2. Call Gemini API
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return NextResponse.json({ error: "AI service is currently unavailable (Missing API Key)." }, { status: 503 });
     }
 
-    const anthropic = new Anthropic({ apiKey });
+    const genAI = new GoogleGenerativeAI(apiKey);
 
     const systemPrompt = `You are a medical triage AI assistant for CareVerse. 
 Your goal is to evaluate the patient's symptoms and provide a preliminary triage assessment.
@@ -87,35 +87,32 @@ CRITICAL RULES:
 3. EXPLICITLY AVOID naming specific drugs, dosages, or treatments. Do not recommend taking any medication by name.
 4. Always end your response with the exact phrase: "This is not a diagnosis — please consult Dr. Pandey."
 
-Respond ONLY with valid JSON in the following format:
+Respond ONLY with valid JSON in the following format (do not include markdown codeblocks, just the raw JSON object):
 {
   "causes": ["cause 1", "cause 2"],
   "urgency_level": "low|medium|high",
   "message": "Your sympathetic yet objective triage message here... This is not a diagnosis — please consult Dr. Pandey."
 }`;
 
-    const msg = await anthropic.messages.create({
-      model: "claude-3-haiku-20240307",
-      max_tokens: 500,
-      temperature: 0,
-      system: systemPrompt,
-      messages: [
-        {
-          role: "user",
-          content: `Patient symptoms: ${symptoms}`
-        }
-      ]
+    // Use Gemini 1.5 Flash for fast, json-structured output
+    const model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash",
+      generationConfig: {
+        responseMimeType: "application/json",
+      }
     });
 
-    // Parse the JSON response
+    // We can prepend the system instructions to the user prompt since some older generative-ai versions don't have a direct 'systemInstruction' arg, but the current one does. We'll use a combined prompt to be safe.
+    const prompt = `${systemPrompt}\n\nPatient symptoms: ${symptoms}`;
+
     let aiPayload;
     try {
-      const responseText = (msg.content[0] as any).text;
-      // Find JSON block if Claude wrapped it
+      const result = await model.generateContent(prompt);
+      const responseText = result.response.text();
       const jsonStr = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
       aiPayload = JSON.parse(jsonStr);
     } catch (e) {
-      console.error("Failed to parse Anthropic response:", e);
+      console.error("Failed to parse Gemini response:", e);
       return NextResponse.json({ error: "Failed to parse AI response" }, { status: 500 });
     }
 
