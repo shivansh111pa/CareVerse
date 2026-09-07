@@ -34,7 +34,7 @@ export function WritePrescriptionModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  const supabase = createClient();
+  const supabase = createClient()!;
 
   if (!isOpen) return null;
 
@@ -91,19 +91,18 @@ export function WritePrescriptionModal({
         .getPublicUrl(fileName);
 
       // 3. Save to database
-      const { error: dbError } = await supabase
-        .from("prescriptions")
-        .insert({
-          id: prescriptionId,
-          appointment_id: appointmentId || null,
-          doctor_id: doctorId,
-          patient_id: patientId,
-          diagnosis,
-          medicines,
-          general_notes: generalNotes,
-          pdf_url: publicUrl,
-          status: "Active"
-        });
+      // @ts-ignore
+      const { data: newPrescription, error: dbError } = await supabase.from("prescriptions" as any).insert({
+        id: prescriptionId,
+        appointment_id: appointmentId || null,
+        doctor_id: doctorId,
+        patient_id: patientId,
+        diagnosis,
+        medicines,
+        general_notes: generalNotes,
+        pdf_url: publicUrl,
+        status: "Active"
+      } as any).select().single()!;
 
       if (dbError) {
         throw new Error(`Database error: ${dbError.message}`);

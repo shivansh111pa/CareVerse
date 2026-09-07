@@ -17,7 +17,7 @@ export function PatientPrescriptionsTab({
 }) {
   const [prescriptions, setPrescriptions] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const supabase = createClient();
+  const supabase = createClient()!;
 
   const fetchPrescriptions = async () => {
     const { data } = await supabase

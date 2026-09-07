@@ -58,10 +58,8 @@ export function LiveEmergencies() {
       updatePayload.resolved_at = new Date().toISOString();
     }
 
-    const { error } = await supabase
-      .from("emergencies")
-      .update(updatePayload)
-      .eq("id", id);
+    const query: any = (supabase as any).from("emergencies").update(updatePayload);
+    const { error } = await query.eq("id", id);
 
     if (error) {
       console.error("Failed to update emergency:", error);

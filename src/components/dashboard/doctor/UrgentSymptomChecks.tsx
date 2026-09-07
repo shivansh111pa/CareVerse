@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export function UrgentSymptomChecks() {
   const [urgentChecks, setUrgentChecks] = useState<any[]>([]);
-  const supabase = createClient();
+  const supabase = createClient()!;
 
   useEffect(() => {
     const fetchUrgentChecks = async () => {
