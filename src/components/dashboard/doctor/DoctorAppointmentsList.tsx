@@ -24,6 +24,7 @@ export function DoctorAppointmentsList({ doctorId }: { doctorId: string }) {
   const [dateFilter, setDateFilter] = useState("");
   const [selectedAppt, setSelectedAppt] = useState<Appointment | null>(null);
   const [prescriptionAppt, setPrescriptionAppt] = useState<Appointment | null>(null);
+  const [emergencyPatientIds, setEmergencyPatientIds] = useState<Set<string>>(new Set());
   const supabase = createClient();
 
   useEffect(() => {
@@ -58,7 +59,19 @@ export function DoctorAppointmentsList({ doctorId }: { doctorId: string }) {
       }
     };
 
+    const fetchEmergencies = async () => {
+      const { data } = await supabase
+        .from("emergencies")
+        .select("patient_id")
+        .eq("status", "open");
+      
+      if (data) {
+        setEmergencyPatientIds(new Set(data.map((e: any) => e.patient_id)));
+      }
+    };
+
     fetchAppointments();
+    fetchEmergencies();
   }, [doctorId, supabase, dateFilter]);
 
   const filteredAppointments = appointments.filter(appt => {
@@ -66,6 +79,15 @@ export function DoctorAppointmentsList({ doctorId }: { doctorId: string }) {
                           appt.reason?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === "All Statuses" || appt.status.toLowerCase() === statusFilter.toLowerCase();
     return matchesSearch && matchesStatus;
+  });
+
+  const sortedAppointments = [...filteredAppointments].sort((a, b) => {
+    const aHasEmergency = emergencyPatientIds.has(a.patient_id);
+    const bHasEmergency = emergencyPatientIds.has(b.patient_id);
+    
+    if (aHasEmergency && !bHasEmergency) return -1;
+    if (!aHasEmergency && bHasEmergency) return 1;
+    return 0; // Maintain default sort (by date) for others
   });
 
   const getStatusColor = (status: string) => {
@@ -154,22 +176,33 @@ export function DoctorAppointmentsList({ doctorId }: { doctorId: string }) {
               </tr>
             </thead>
             <tbody>
-              {filteredAppointments.length === 0 && (
+              {sortedAppointments.length === 0 && (
                 <tr>
                   <td colSpan={5} style={{ padding: "1rem 0", textAlign: "center", color: "var(--text-muted)" }}>
                     No appointments found.
                   </td>
                 </tr>
               )}
-              {filteredAppointments.map((appt) => {
+              {sortedAppointments.map((appt) => {
                 const dateObj = new Date(appt.start_time);
+                const hasEmergency = emergencyPatientIds.has(appt.patient_id);
                 return (
-                  <tr key={appt.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                  <tr key={appt.id} style={{ 
+                    borderBottom: "1px solid rgba(255,255,255,0.05)",
+                    backgroundColor: hasEmergency ? "rgba(255, 107, 107, 0.1)" : "transparent"
+                  }}>
                     <td style={{ padding: "1rem 0" }}>
                       <div style={{ fontWeight: 500, fontSize: "0.9375rem" }}>{dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                       <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{dateObj.toLocaleDateString()}</div>
                     </td>
-                    <td style={{ fontWeight: 500, fontSize: "0.9375rem" }}>{appt.profiles?.full_name || "Unknown"}</td>
+                    <td style={{ fontWeight: 500, fontSize: "0.9375rem" }}>
+                      {appt.profiles?.full_name || "Unknown"}
+                      {hasEmergency && (
+                        <span style={{ marginLeft: "8px", color: "#ff6b6b", fontSize: "0.7rem", fontWeight: "bold", border: "1px solid #ff6b6b", padding: "2px 6px", borderRadius: "4px" }}>
+                          SOS
+                        </span>
+                      )}
+                    </td>
                     <td style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}>{appt.reason} ({appt.mode === 'telehealth' ? 'Telehealth' : 'In-person'})</td>
                     <td>
                       <span style={{ 
