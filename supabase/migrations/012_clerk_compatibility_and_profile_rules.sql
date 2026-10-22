@@ -10,8 +10,63 @@ ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS age integer;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS height text;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS weight text;
 
--- 2. Drop ALL policies across public and storage schemas dynamically
--- This prevents "cannot alter type of a column used in a policy definition" on ANY table or column
+-- 2. Explicitly drop every policy that references IDs or columns across tables & storage
+-- Storage policies
+DROP POLICY IF EXISTS "Allow public access to avatars" ON storage.objects;
+DROP POLICY IF EXISTS "Allow users to upload avatars" ON storage.objects;
+DROP POLICY IF EXISTS "Allow users to update own avatars" ON storage.objects;
+DROP POLICY IF EXISTS "Allow users to delete own avatars" ON storage.objects;
+DROP POLICY IF EXISTS "Patients can view their own prescription PDFs" ON storage.objects;
+DROP POLICY IF EXISTS "Doctors can view all prescription PDFs" ON storage.objects;
+DROP POLICY IF EXISTS "Doctors can insert prescription PDFs" ON storage.objects;
+DROP POLICY IF EXISTS "Doctors can update prescription PDFs" ON storage.objects;
+DROP POLICY IF EXISTS "Allow public read on avatars" ON storage.objects;
+DROP POLICY IF EXISTS "Allow uploads to avatars" ON storage.objects;
+DROP POLICY IF EXISTS "Allow access to prescriptions bucket" ON storage.objects;
+
+-- Profiles policies
+DROP POLICY IF EXISTS "Users can select own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Doctors can select all profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Allow all profile access" ON public.profiles;
+
+-- Prescriptions policies (specifically dropped so patient_id and doctor_id can be altered)
+DROP POLICY IF EXISTS "Patients can view their own prescriptions" ON public.prescriptions;
+DROP POLICY IF EXISTS "Doctors can view all prescriptions" ON public.prescriptions;
+DROP POLICY IF EXISTS "Doctors can insert prescriptions" ON public.prescriptions;
+DROP POLICY IF EXISTS "Doctors can update prescriptions" ON public.prescriptions;
+
+-- Appointments policies
+DROP POLICY IF EXISTS "Patients can insert their own appointments" ON public.appointments;
+DROP POLICY IF EXISTS "Patients can view their own appointments" ON public.appointments;
+DROP POLICY IF EXISTS "Doctors can manage their own appointments" ON public.appointments;
+
+-- Availability rules & exceptions
+DROP POLICY IF EXISTS "Doctors can manage their own availability rules" ON public.availability_rules;
+DROP POLICY IF EXISTS "Anyone can view availability rules" ON public.availability_rules;
+DROP POLICY IF EXISTS "Doctors can manage their own availability exceptions" ON public.availability_exceptions;
+DROP POLICY IF EXISTS "Anyone can view availability exceptions" ON public.availability_exceptions;
+
+-- Medical records policies
+DROP POLICY IF EXISTS "Doctors can manage their own medical records" ON public.medical_records;
+DROP POLICY IF EXISTS "Patients can view their own medical records" ON public.medical_records;
+
+-- Vitals policies
+DROP POLICY IF EXISTS "Patients can manage their own vitals" ON public.vitals;
+DROP POLICY IF EXISTS "Doctors can view vitals of their patients" ON public.vitals;
+
+-- Emergencies policies
+DROP POLICY IF EXISTS "Patients can view their own emergencies" ON public.emergencies;
+DROP POLICY IF EXISTS "Patients can insert their own emergencies" ON public.emergencies;
+DROP POLICY IF EXISTS "Doctors can view all emergencies" ON public.emergencies;
+DROP POLICY IF EXISTS "Doctors can update all emergencies" ON public.emergencies;
+
+-- Symptom checks policies
+DROP POLICY IF EXISTS "Patients can view their own symptom checks" ON public.symptom_checks;
+DROP POLICY IF EXISTS "Patients can insert their own symptom checks" ON public.symptom_checks;
+DROP POLICY IF EXISTS "Doctors can view all symptom checks" ON public.symptom_checks;
+
+-- Also dynamically drop any other custom policies in public/storage schemas
 DO $$ 
 DECLARE 
     r RECORD;
