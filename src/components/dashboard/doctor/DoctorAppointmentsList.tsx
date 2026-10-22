@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { MedicalRecordModal } from "./MedicalRecordModal";
 import { WritePrescriptionModal } from "./WritePrescriptionModal";
+import { CalendarIcon, ClockIcon } from "@/components/ui/Icons";
 
 interface Appointment {
   id: string;
@@ -45,7 +46,7 @@ export function DoctorAppointmentsList({ doctorId }: { doctorId: string }) {
           )
         `)
         .eq("doctor_id", doctorId)
-        .order("start_time", { ascending: false });
+        .order("start_time", { ascending: true });
 
       if (dateFilter) {
         query = query
@@ -87,7 +88,7 @@ export function DoctorAppointmentsList({ doctorId }: { doctorId: string }) {
     
     if (aHasEmergency && !bHasEmergency) return -1;
     if (!aHasEmergency && bHasEmergency) return 1;
-    return 0; // Maintain default sort (by date) for others
+    return new Date(a.start_time).getTime() - new Date(b.start_time).getTime();
   });
 
   const getStatusColor = (status: string) => {
@@ -168,7 +169,7 @@ export function DoctorAppointmentsList({ doctorId }: { doctorId: string }) {
           <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "800px" }}>
             <thead>
               <tr style={{ color: "var(--text-muted)", borderBottom: "1px solid rgba(255,255,255,0.1)", textAlign: "left" }}>
-                <th style={{ padding: "0.75rem 0", fontWeight: 500, fontSize: "0.875rem" }}>Time</th>
+                <th style={{ padding: "0.75rem 0", fontWeight: 500, fontSize: "0.875rem" }}>Date & Time</th>
                 <th style={{ padding: "0.75rem 0", fontWeight: 500, fontSize: "0.875rem" }}>Patient</th>
                 <th style={{ padding: "0.75rem 0", fontWeight: 500, fontSize: "0.875rem" }}>Type</th>
                 <th style={{ padding: "0.75rem 0", fontWeight: 500, fontSize: "0.875rem" }}>Status</th>
@@ -192,8 +193,16 @@ export function DoctorAppointmentsList({ doctorId }: { doctorId: string }) {
                     backgroundColor: hasEmergency ? "rgba(255, 107, 107, 0.1)" : "transparent"
                   }}>
                     <td style={{ padding: "1rem 0" }}>
-                      <div style={{ fontWeight: 500, fontSize: "0.9375rem" }}>{dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                      <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{dateObj.toLocaleDateString()}</div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                        <div style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", fontWeight: 600, fontSize: "0.9375rem", color: "var(--text-bright)" }}>
+                          <CalendarIcon style={{ width: 14, height: 14, color: "var(--accent-aqua)", flexShrink: 0 }} />
+                          <span>{dateObj.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" })}</span>
+                        </div>
+                        <div style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", fontSize: "0.8125rem", color: "var(--text-muted)" }}>
+                          <ClockIcon style={{ width: 13, height: 13, color: "var(--accent-forest)", flexShrink: 0 }} />
+                          <span style={{ fontWeight: 500 }}>{dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
+                      </div>
                     </td>
                     <td style={{ fontWeight: 500, fontSize: "0.9375rem" }}>
                       {appt.profiles?.full_name || "Unknown"}

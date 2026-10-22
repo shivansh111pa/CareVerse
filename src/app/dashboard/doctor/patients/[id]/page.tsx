@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { PatientPrescriptionsTab } from "@/components/dashboard/doctor/PatientPrescriptionsTab";
+import { CalendarIcon, ClockIcon } from "@/components/ui/Icons";
 
 export default async function PatientDetailPage({ params }: { params: { id: string } }) {
   const profile = await getCurrentProfile();
@@ -30,7 +31,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
       .from("appointments")
       .select("*")
       .eq("patient_id", params.id)
-      .order("start_time", { ascending: false });
+      .order("start_time", { ascending: true });
     if (apptsData) appointments = apptsData;
   }
 
@@ -174,22 +175,31 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
           </div>
 
           <div className="glass-panel" style={{ padding: "1.5rem" }}>
-            <h3 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "1rem" }}>Recent Appointments</h3>
+            <h3 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "1rem" }}>Appointments (Chronological)</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
               {appointments.length === 0 ? (
                 <p style={{ fontSize: "0.875rem", color: "var(--text-muted)" }}>No appointments found.</p>
               ) : (
-                appointments.map((appt) => (
-                  <div key={appt.id} style={{ display: "flex", justifyContent: "space-between", paddingBottom: "0.5rem", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-                    <div>
-                      <div style={{ fontSize: "0.875rem", fontWeight: 500 }}>{new Date(appt.start_time).toLocaleDateString()}</div>
-                      <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{new Date(appt.start_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                appointments.map((appt) => {
+                  const dateObj = new Date(appt.start_time);
+                  return (
+                    <div key={appt.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "0.75rem", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                        <div style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", fontSize: "0.875rem", fontWeight: 600, color: "var(--text-bright)" }}>
+                          <CalendarIcon style={{ width: 14, height: 14, color: "var(--accent-aqua)", flexShrink: 0 }} />
+                          <span>{dateObj.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" })}</span>
+                        </div>
+                        <div style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", fontSize: "0.8125rem", color: "var(--text-muted)" }}>
+                          <ClockIcon style={{ width: 13, height: 13, color: "var(--accent-forest)", flexShrink: 0 }} />
+                          <span>{dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
+                      </div>
+                      <div style={{ fontSize: "0.8125rem", textTransform: "capitalize", padding: "0.2rem 0.55rem", borderRadius: "99px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: appt.status === 'scheduled' ? "var(--accent-aqua)" : "var(--text-muted)" }}>
+                        {appt.status}
+                      </div>
                     </div>
-                    <div style={{ fontSize: "0.875rem", color: appt.status === 'scheduled' ? "var(--accent-aqua)" : "var(--text-muted)" }}>
-                      {appt.status}
-                    </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>

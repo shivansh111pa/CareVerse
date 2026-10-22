@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { ClockIcon } from "@/components/ui/Icons";
 
 interface Appointment {
   id: string;
@@ -86,8 +87,9 @@ export function TodayAppointmentsList({ doctorId }: TodayAppointmentsListProps) 
         ) : (
           appointments.map((appt, i) => (
             <div key={appt.id} style={{ display: "grid", gridTemplateColumns: "80px 1fr 100px", alignItems: "center", paddingBottom: "1rem", borderBottom: i === appointments.length - 1 ? "none" : "1px solid rgba(255,255,255,0.08)" }}>
-              <div style={{ fontSize: "0.875rem", color: "var(--text-muted)" }}>
-                {new Date(appt.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              <div style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", fontSize: "0.875rem", color: "var(--accent-aqua)", fontWeight: 600 }}>
+                <ClockIcon style={{ width: 13, height: 13, flexShrink: 0 }} />
+                <span>{new Date(appt.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
                 <span style={{ fontWeight: 600, fontSize: "0.9375rem" }}>{appt.profiles?.full_name || "Unknown Patient"}</span>
