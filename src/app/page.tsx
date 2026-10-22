@@ -11,6 +11,9 @@ import {
   StarIcon,
 } from "@/components/ui/Icons";
 
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
+
 function AuthPanelFallback() {
   return (
     <div className="auth-panel-wrap" aria-hidden="true">
@@ -28,6 +31,11 @@ function AuthPanelFallback() {
 }
 
 export default function LandingPage() {
+  const { userId } = auth();
+  if (userId) {
+    redirect("/dashboard");
+  }
+
   return (
     <>
       <LiquidSurface />

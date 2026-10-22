@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { onboardUserAction } from "@/app/actions/profile";
 import { GlassPanel } from "@/components/ui/GlassPanel";
@@ -23,6 +24,12 @@ function SubmitButton() {
 
 export function OnboardingForm() {
   const [state, formAction] = useFormState(onboardUserAction, initialState);
+
+  useEffect(() => {
+    if (state?.success) {
+      window.location.href = "/dashboard";
+    }
+  }, [state?.success]);
 
   return (
     <div

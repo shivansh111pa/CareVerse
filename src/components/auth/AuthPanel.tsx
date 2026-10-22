@@ -187,12 +187,19 @@ export function AuthPanel() {
 
   // Handle Google OAuth
   function handleGoogleAuth() {
-    if (!isSignInLoaded) return;
-    signIn.authenticateWithRedirect({
-      strategy: "oauth_google",
-      redirectUrl: "/sso-callback",
-      redirectUrlComplete: "/dashboard",
-    });
+    if (tab === "signup" && isSignUpLoaded) {
+      signUp.authenticateWithRedirect({
+        strategy: "oauth_google",
+        redirectUrl: "/sso-callback",
+        redirectUrlComplete: "/dashboard",
+      });
+    } else if (isSignInLoaded) {
+      signIn.authenticateWithRedirect({
+        strategy: "oauth_google",
+        redirectUrl: "/sso-callback",
+        redirectUrlComplete: "/dashboard",
+      });
+    }
   }
 
   // Handle Forgot Password Request
