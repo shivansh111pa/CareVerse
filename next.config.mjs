@@ -9,6 +9,20 @@ const nextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/dashboard/doctor/analytics",
+        destination: "/dashboard/doctor",
+        permanent: false,
+      },
+      {
+        source: "/dashboard/doctor/messages",
+        destination: "/dashboard/doctor",
+        permanent: false,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
