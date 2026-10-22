@@ -2,8 +2,6 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getCurrentProfile } from "@/lib/auth/session";
 import {
-  BellIcon,
-  MessageSquareIcon,
   FileTextIcon,
 } from "@/components/ui/Icons";
 import { NextAppointmentCard } from "@/components/dashboard/patient/NextAppointmentCard";
@@ -65,12 +63,6 @@ export default async function PatientDashboardPage() {
         </header>
 
         <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-          <button type="button" className="btn btn-ghost" style={{ padding: "0.4rem", borderRadius: "50%" }} aria-label="Notifications">
-            <BellIcon style={{ width: 20, height: 20 }} />
-          </button>
-          <button type="button" className="btn btn-ghost" style={{ padding: "0.4rem", borderRadius: "50%" }} aria-label="Messages">
-            <MessageSquareIcon style={{ width: 20, height: 20 }} />
-          </button>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", background: "var(--surface-subtle)", padding: "0.25rem 0.75rem 0.25rem 0.25rem", borderRadius: "99px", border: "1.5px solid var(--border-dark)" }}>
             <div style={{ width: "26px", height: "26px", borderRadius: "50%", background: "var(--accent-forest)", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffffff", fontSize: "0.75rem", fontWeight: 700 }}>
               {firstName.charAt(0)}
