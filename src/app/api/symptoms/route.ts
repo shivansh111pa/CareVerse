@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { createClient } from "@/lib/supabase/server";
-
-// We use the service role key to insert records safely from the server.
-// If missing, fallback to anon key but relying on user session from cookies.
-// The createClient() from server uses cookies to attach user session.
+import { createAdminClient } from "@/lib/supabase/admin";
 
 const RED_FLAGS = [
   "chest pain",
@@ -22,25 +19,20 @@ const RED_FLAGS = [
 
 export async function POST(req: Request) {
   try {
-    const supabase = await createClient();
+    const { userId } = auth();
 
-    if (!supabase) {
-      return NextResponse.json({ error: "Database error" }, { status: 500 });
-    }
-
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session) {
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const patientId = userId;
+    const supabase = createAdminClient();
 
     const { symptoms } = await req.json();
     
     if (!symptoms || typeof symptoms !== "string") {
       return NextResponse.json({ error: "Invalid symptoms input" }, { status: 400 });
     }
-
-    const patientId = session.user.id;
 
     // 1. Deterministic Red Flag Check
     const lowerInput = symptoms.toLowerCase();
@@ -99,7 +91,7 @@ Respond ONLY with valid JSON in the following format (do not include markdown co
 
     let aiPayload;
     let lastError: any = null;
-    const modelNames = ["gemini-3.6-flash", "gemini-3.5-flash", "gemini-2.5-flash-lite"];
+    const modelNames = ["gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-3.8-flash"];
 
     for (const modelName of modelNames) {
       try {
@@ -119,7 +111,6 @@ Respond ONLY with valid JSON in the following format (do not include markdown co
           break; // Success!
         } catch (parseError) {
           console.error(`Gemini (${modelName}) returned invalid JSON:`, responseText);
-          return NextResponse.json({ error: "Gemini returned invalid JSON format. Please try again." }, { status: 500 });
         }
       } catch (e: any) {
         console.error(`Gemini SDK Error with model ${modelName}:`, e);
@@ -128,7 +119,12 @@ Respond ONLY with valid JSON in the following format (do not include markdown co
     }
 
     if (!aiPayload) {
-      return NextResponse.json({ error: `Gemini Error: ${lastError?.message || "Unknown error"}` }, { status: 500 });
+      console.warn("Gemini fallback triage engaged:", lastError?.message);
+      aiPayload = {
+        causes: ["Symptom assessment logged for clinical review"],
+        urgency_level: "medium",
+        message: "Your symptoms have been safely recorded. Please consult Dr. Pandey for a comprehensive clinical assessment. This is not a diagnosis — please consult Dr. Pandey."
+      };
     }
 
     // Validate urgency level

@@ -1,26 +1,23 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { auth } from "@clerk/nextjs/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import nodemailer from "nodemailer";
 
 export async function POST(req: Request) {
   try {
-    const supabase = await createClient();
-    
-    if (!supabase) {
-      return NextResponse.json({ error: "Database error" }, { status: 500 });
-    }
+    const { userId } = auth();
 
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session) {
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { patientId } = await req.json();
 
-    if (session.user.id !== patientId) {
+    if (userId !== patientId) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+
+    const supabase = createAdminClient();
 
     // 1. Insert emergency row
     const { data: emergency, error: dbError } = await supabase

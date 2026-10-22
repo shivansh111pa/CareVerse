@@ -1,31 +1,34 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useUser } from "@clerk/nextjs";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function SOSPage() {
+  const { user, isLoaded } = useUser();
   const [emergency, setEmergency] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const supabase = createClient()!;
   const router = useRouter();
 
   useEffect(() => {
+    if (!isLoaded) return;
+    if (!user) {
+      router.push("/");
+      return;
+    }
+
     let channel: any;
 
     const fetchLatestSOS = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        router.push("/");
-        return;
-      }
 
       // Get the most recent open or acknowledged emergency
       const { data } = await supabase
         .from("emergencies")
         .select("*")
-        .eq("patient_id", session.user.id)
+        .eq("patient_id", user.id)
         .in("status", ["open", "acknowledged"])
         .order("created_at", { ascending: false })
         .limit(1)
@@ -56,7 +59,7 @@ export default function SOSPage() {
         supabase.removeChannel(channel);
       }
     };
-  }, [supabase, router]);
+  }, [supabase, router, user, isLoaded]);
 
   if (isLoading) {
     return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>Loading...</div>;
