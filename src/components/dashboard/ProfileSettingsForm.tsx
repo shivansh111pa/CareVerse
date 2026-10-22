@@ -240,23 +240,27 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
                 </div>
 
                 <div className="form-field">
-                  <label className="form-label" htmlFor="height">Height (e.g. 5&apos;10&quot;)</label>
+                  <label className="form-label" htmlFor="height">Height (Max 6&apos;8&quot;)</label>
                   <input 
                     id="height"
                     name="height"
                     type="text"
                     defaultValue={profile.height || ""}
+                    placeholder="e.g. 5'10&quot; (Max 6'8&quot;)"
+                    title="Height cannot exceed 6'8&quot; (203 cm)"
                     className="glass-input"
                   />
                 </div>
 
                 <div className="form-field">
-                  <label className="form-label" htmlFor="weight">Weight (e.g. 150 lbs)</label>
+                  <label className="form-label" htmlFor="weight">Weight (Max 120 kg)</label>
                   <input 
                     id="weight"
                     name="weight"
                     type="text"
                     defaultValue={profile.weight || ""}
+                    placeholder="e.g. 70 kg (Max 120 kg)"
+                    title="Weight cannot exceed 120 kg"
                     className="glass-input"
                   />
                 </div>
