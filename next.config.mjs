@@ -21,6 +21,11 @@ const nextConfig = {
         destination: "/dashboard/doctor",
         permanent: false,
       },
+      {
+        source: "/dashboard/patient/history",
+        destination: "/dashboard/patient/records",
+        permanent: false,
+      },
     ];
   },
 };

@@ -43,6 +43,6 @@ export const PATIENT_QUICK_ACTIONS = [
   {
     label: "View history",
     description: "Past visits and records",
-    href: "/dashboard/patient/history",
+    href: "/dashboard/patient/records",
   },
 ] as const;
