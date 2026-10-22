@@ -9,7 +9,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "CareVerse Clinic — Dr. Shivansh A. Pandey, MBBS | Clinical & Telehealth Practice",
+  title: "CareVerse Clinic — Dr. Shivansh A. Pandey, MBBS | Clinical Practice",
   description:
     "Official clinical care, appointment scheduling, digital prescriptions, and patient records for Dr. Shivansh A. Pandey, MBBS.",
   keywords: [
@@ -18,7 +18,6 @@ export const metadata: Metadata = {
     "Clinic",
     "Doctor Appointment",
     "General Physician",
-    "Telehealth",
     "Medical Records",
     "Prescriptions",
   ],

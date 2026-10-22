@@ -35,7 +35,7 @@ export function BookAppointmentForm({ patientId }: BookAppointmentFormProps) {
   const [selectedDoctorId, setSelectedDoctorId] = useState<string>("");
   
   const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
-  const [mode, setMode] = useState<"in_person" | "telehealth">("in_person");
+  const mode: "in_person" = "in_person";
   const [reason, setReason] = useState("");
   
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
@@ -231,26 +231,6 @@ export function BookAppointmentForm({ patientId }: BookAppointmentFormProps) {
           />
         </div>
       </div>
-
-      {/* Visit Type */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-        <label style={{ fontWeight: 500, fontSize: "0.9375rem" }}>Visit Type</label>
-        <div style={{ display: "flex", background: "var(--surface-subtle, #f0f4f1)", borderRadius: "10px", padding: "0.25rem", border: "1.5px solid var(--border-dark, #122820)", maxWidth: "400px" }}>
-          <button 
-            onClick={() => setMode("in_person")}
-            style={{ flex: 1, padding: "0.5rem", borderRadius: "8px", background: mode === "in_person" ? "var(--accent-forest, #0b5a42)" : "transparent", color: mode === "in_person" ? "#ffffff" : "var(--text-primary, #122820)", fontWeight: 700, border: "none", fontSize: "0.875rem", cursor: "pointer" }}
-          >
-            In-Person
-          </button>
-          <button 
-            onClick={() => setMode("telehealth")}
-            style={{ flex: 1, padding: "0.5rem", borderRadius: "8px", background: mode === "telehealth" ? "var(--accent-forest, #0b5a42)" : "transparent", color: mode === "telehealth" ? "#ffffff" : "var(--text-primary, #122820)", fontWeight: 700, border: "none", fontSize: "0.875rem", cursor: "pointer" }}
-          >
-            Telehealth
-          </button>
-        </div>
-      </div>
-
       {/* Time Slots */}
       <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
         <label style={{ fontWeight: 500, fontSize: "0.9375rem" }}>Available Times</label>

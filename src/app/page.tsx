@@ -64,7 +64,7 @@ export default function LandingPage() {
 
               <ScrollReveal variant="pop" delay={120} as="div">
                 <p className="hero-sub">
-                  Experience seamless clinic visits, digital prescriptions, and direct doctor follow-ups. Whether in-person at our clinic or via telehealth, your health is in expert hands.
+                  Experience seamless clinic visits, digital prescriptions, and direct doctor follow-ups. In-person at our clinic, your health is in expert hands.
                 </p>
               </ScrollReveal>
 

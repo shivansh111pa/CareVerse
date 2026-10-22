@@ -2,7 +2,7 @@ import { getCurrentProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ClockIcon, VideoIcon, CalendarIcon } from "@/components/ui/Icons";
+import { ClockIcon, CalendarIcon } from "@/components/ui/Icons";
 
 export default async function AppointmentsPage() {
   const profile = await getCurrentProfile();
@@ -44,7 +44,7 @@ export default async function AppointmentsPage() {
             My Appointments
           </h1>
           <p className="text-muted">
-            Manage your upcoming visits and telehealth sessions.
+            Manage your upcoming clinic visits.
           </p>
         </div>
         <Link href="/dashboard/patient/appointments/book" className="btn btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: "0.45rem", textDecoration: "none" }}>
@@ -66,7 +66,6 @@ export default async function AppointmentsPage() {
           upcomingAppointments.map((appt) => {
             const startDate = new Date(appt.start_time);
             const isConfirmed = appt.status?.toLowerCase() === "confirmed";
-            const isTelehealth = appt.mode === "telehealth";
 
             return (
               <div key={appt.id} className="glass-panel" style={{ padding: "1.5rem", display: "flex", flexDirection: "column" }}>
@@ -74,11 +73,6 @@ export default async function AppointmentsPage() {
                   <span className={`clinic-stamp ${isConfirmed ? "clinic-stamp--verified" : ""}`} style={{ fontSize: "0.6875rem", padding: "0.2rem 0.55rem" }}>
                     {appt.status?.charAt(0).toUpperCase() + appt.status?.slice(1) || "Scheduled"}
                   </span>
-                  {isTelehealth && (
-                    <span className="clinic-stamp" style={{ fontSize: "0.6875rem", padding: "0.2rem 0.55rem" }}>
-                      Telehealth
-                    </span>
-                  )}
                 </div>
                 
                 <h4 style={{ fontSize: "1.125rem", fontWeight: 700, marginBottom: "0.25rem", fontFamily: "var(--font-display)" }}>
@@ -93,15 +87,9 @@ export default async function AppointmentsPage() {
                 </div>
                 
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "auto" }}>
-                  {isTelehealth ? (
-                    <button className="btn btn-primary" style={{ padding: "0.45rem 0.9rem", fontSize: "0.8125rem", display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
-                      <VideoIcon style={{ width: 14, height: 14 }} /> Video Room
-                    </button>
-                  ) : (
-                    <button className="btn btn-secondary" style={{ padding: "0.45rem 0.9rem", fontSize: "0.8125rem" }}>
-                      In-Clinic Visit
-                    </button>
-                  )}
+                  <span className="clinic-stamp" style={{ padding: "0.25rem 0.6rem", fontSize: "0.75rem" }}>
+                    In-Clinic Visit
+                  </span>
                 </div>
               </div>
             );

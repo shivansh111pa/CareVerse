@@ -87,7 +87,6 @@ export function NextAppointmentCard({ patientId }: NextAppointmentCardProps) {
   }
 
   const startDate = new Date(nextAppointment.start_time);
-  const isTelehealth = nextAppointment.mode === "telehealth";
 
   return (
     <div className="glass-panel" style={{ padding: "1.5rem", display: "flex", flexDirection: "column" }}>
@@ -106,11 +105,9 @@ export function NextAppointmentCard({ patientId }: NextAppointmentCardProps) {
       </div>
       
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "auto" }}>
-        {isTelehealth && (
-          <button className="btn" style={{ padding: "0.5rem 1rem", fontSize: "0.875rem", borderRadius: "99px", background: "var(--accent-aqua)", color: "#000", fontWeight: 600, border: "none" }}>
-            🎥 Video Call
-          </button>
-        )}
+        <span className="clinic-stamp" style={{ fontSize: "0.75rem", padding: "0.25rem 0.6rem" }}>
+          In-Clinic Visit
+        </span>
       </div>
     </div>
   );

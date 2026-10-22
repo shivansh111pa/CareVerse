@@ -203,7 +203,7 @@ export function DoctorAppointmentsList({ doctorId }: { doctorId: string }) {
                         </span>
                       )}
                     </td>
-                    <td style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}>{appt.reason} ({appt.mode === 'telehealth' ? 'Telehealth' : 'In-person'})</td>
+                    <td style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}>{appt.reason || "General Consultation"}</td>
                     <td>
                       <span style={{ 
                         fontSize: "0.75rem", 

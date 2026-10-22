@@ -103,13 +103,13 @@ const OPD_SCHEDULE = [
   { day: "Thursday", morning: "09:00 AM – 01:00 PM", evening: "04:30 PM – 07:30 PM", status: "Open", dayIndex: 4 },
   { day: "Friday", morning: "09:00 AM – 01:00 PM", evening: "04:30 PM – 07:30 PM", status: "Open", dayIndex: 5 },
   { day: "Saturday", morning: "09:00 AM – 02:00 PM", evening: "On-Call Emergency", status: "Half Day", dayIndex: 6 },
-  { day: "Sunday", morning: "Telehealth By Appointment", evening: "Closed (Emergency Only)", status: "Telehealth", dayIndex: 0 },
+  { day: "Sunday", morning: "Emergency & On-Call", evening: "Closed (Emergency Only)", status: "Closed", dayIndex: 0 },
 ];
 
 const FAQ_ITEMS = [
   {
     q: "How do I book an appointment with Dr. Shivansh?",
-    a: "You can create an account or sign in above on our portal, choose your preferred in-clinic or telehealth slot, and receive an instant confirmation SMS & WhatsApp reminder with your OPD token number.",
+    a: "You can create an account or sign in above on our portal, choose your preferred in-clinic slot, and receive an instant confirmation SMS & WhatsApp reminder with your OPD token number.",
   },
   {
     q: "Can I walk in directly without prior online booking?",
@@ -129,7 +129,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "How do I consult Dr. Shivansh for routine follow-ups?",
-    a: "Routine follow-ups within 7 days of an initial consultation are discounted. You can book a quick follow-up slot online or schedule a secure 1-on-1 telehealth review through your dashboard.",
+    a: "Routine follow-ups within 7 days of an initial consultation are discounted. You can book a quick follow-up slot online through your dashboard.",
   },
 ];
 
