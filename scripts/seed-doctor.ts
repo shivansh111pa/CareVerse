@@ -53,6 +53,7 @@ async function main() {
             password: doctorPassword,
             first_name: firstName,
             last_name: lastName,
+            bypass_client_trust: true,
             public_metadata: { role: "doctor" },
           }),
         });
@@ -69,6 +70,7 @@ async function main() {
             password: doctorPassword,
             first_name: firstName,
             last_name: lastName,
+            bypass_client_trust: true,
             public_metadata: { role: "doctor" },
           }),
         });
