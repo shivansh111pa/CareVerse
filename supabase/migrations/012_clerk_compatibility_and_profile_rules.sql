@@ -188,7 +188,28 @@ DO $$ BEGIN
   END IF;
 END $$;
 
--- 8. Add database-level validation checks:
+-- 8. Sanitize existing legacy rows in profiles to satisfy constraints:
+--    - Extract 10 digits from existing phone numbers (stripping +91 country codes, dashes, spaces)
+--    - Cap age values between 1 and 100
+UPDATE public.profiles
+SET phone = CASE
+  WHEN length(regexp_replace(phone, '\D', '', 'g')) = 10 
+    THEN regexp_replace(phone, '\D', '', 'g')
+  WHEN length(regexp_replace(phone, '\D', '', 'g')) = 12 AND regexp_replace(phone, '\D', '', 'g') LIKE '91%'
+    THEN substring(regexp_replace(phone, '\D', '', 'g') FROM 3)
+  ELSE NULL
+END
+WHERE phone IS NOT NULL AND phone != '';
+
+UPDATE public.profiles
+SET age = CASE
+  WHEN age < 1 THEN 1
+  WHEN age > 100 THEN 100
+  ELSE age
+END
+WHERE age IS NOT NULL;
+
+-- Add database-level validation checks:
 --    - Mobile number must be exactly 10 digits
 --    - Age must be between 1 and 100
 ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_age_check;
