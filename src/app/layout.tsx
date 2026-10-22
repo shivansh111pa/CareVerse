@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -29,14 +30,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <head>
-        <link
-          rel="stylesheet"
-          href="https://fonts.cdnfonts.com/css/sf-pro-display"
-        />
-      </head>
-      <body>{children}</body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <head>
+          <link
+            rel="stylesheet"
+            href="https://fonts.cdnfonts.com/css/sf-pro-display"
+          />
+        </head>
+        <body>{children}</body>
+      </html>
+    </ClerkProvider>
   );
 }

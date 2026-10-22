@@ -1,6 +1,6 @@
 import type { Profile } from "@/types";
 import { getNavForRole } from "@/lib/dashboard/nav";
-import { logoutAction } from "@/app/actions/auth";
+import { SignOutButton } from "@clerk/nextjs";
 import { DashboardNavLink } from "@/components/dashboard/DashboardNavLink";
 import Link from "next/link";
 import Image from "next/image";
@@ -76,11 +76,11 @@ export function DashboardSidebar({ profile }: DashboardSidebarProps) {
       </nav>
 
       <div className="dashboard-sidebar__footer">
-        <form action={logoutAction}>
-          <button type="submit" className="btn btn-ghost dashboard-sidebar__logout">
+        <SignOutButton redirectUrl="/">
+          <button type="button" className="btn btn-ghost dashboard-sidebar__logout">
             Sign out
           </button>
-        </form>
+        </SignOutButton>
       </div>
     </aside>
   );

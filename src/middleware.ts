@@ -1,18 +1,16 @@
-import { type NextRequest } from "next/server";
-import { updateSession } from "@/lib/supabase/middleware";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-export async function middleware(request: NextRequest) {
-  const response = await updateSession(request);
-  
-  console.log("Middleware URL:", request.nextUrl.pathname);
-  
-  return response;
-}
+const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"]);
+
+export default clerkMiddleware((auth, req) => {
+  if (isProtectedRoute(req)) {
+    auth().protect();
+  }
+});
 
 export const config = {
   matcher: [
-    "/",
-    "/dashboard/:path*",
-    "/auth/:path*",
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    "/(api|trpc)(.*)",
   ],
 };

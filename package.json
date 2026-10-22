@@ -10,6 +10,7 @@
     "seed:doctor": "tsx --env-file=.env.local scripts/seed-doctor.ts"
   },
   "dependencies": {
+    "@clerk/nextjs": "^5.7.6",
     "@google/generative-ai": "^0.24.1",
     "@next/font": "^14.2.15",
     "@react-pdf/renderer": "^4.3.0",
