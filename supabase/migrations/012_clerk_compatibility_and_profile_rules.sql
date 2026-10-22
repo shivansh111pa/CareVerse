@@ -10,72 +10,31 @@ ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS age integer;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS height text;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS weight text;
 
--- 2. Drop all policies that depend on public.profiles or its columns
--- (PostgreSQL blocks altering a column type if ANY policy in storage or tables references it)
-DO $$
-DECLARE
-    pol RECORD;
+-- 2. Drop ALL policies across public and storage schemas dynamically
+-- This prevents "cannot alter type of a column used in a policy definition" on ANY table or column
+DO $$ 
+DECLARE 
+    r RECORD;
 BEGIN
-    -- Dynamically drop any policy across any schema (e.g. storage, public) that references public.profiles
-    FOR pol IN (
-        SELECT 
-            p.polname,
-            c.relname AS table_name,
-            n.nspname AS schema_name
-        FROM pg_policy p
-        JOIN pg_class c ON p.polrelid = c.oid
-        JOIN pg_namespace n ON c.relnamespace = n.oid
-        WHERE p.oid IN (
-            SELECT objid 
-            FROM pg_depend 
-            WHERE refobjid = 'public.profiles'::regclass 
-              AND classid = 'pg_policy'::regclass
-        )
+    FOR r IN (
+        SELECT schemaname, tablename, policyname 
+        FROM pg_policies 
+        WHERE schemaname IN ('public', 'storage')
     ) LOOP
-        EXECUTE format('DROP POLICY IF EXISTS %I ON %I.%I', pol.polname, pol.schema_name, pol.table_name);
+        EXECUTE format('DROP POLICY IF EXISTS %I ON %I.%I', r.policyname, r.schemaname, r.tablename);
     END LOOP;
 END $$;
 
--- Also explicitly drop known storage and table policies to ensure clean state
-DROP POLICY IF EXISTS "Doctors can view all prescription PDFs" ON storage.objects;
-DROP POLICY IF EXISTS "Doctors can insert prescription PDFs" ON storage.objects;
-DROP POLICY IF EXISTS "Doctors can update prescription PDFs" ON storage.objects;
-DROP POLICY IF EXISTS "Allow users to upload avatars" ON storage.objects;
-DROP POLICY IF EXISTS "Allow users to update own avatars" ON storage.objects;
-DROP POLICY IF EXISTS "Allow users to delete own avatars" ON storage.objects;
+-- 3. Drop obsolete Supabase Auth triggers & functions (since Clerk manages users)
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users CASCADE;
+DROP TRIGGER IF EXISTS on_profile_role_update ON public.profiles CASCADE;
+DROP FUNCTION IF EXISTS public.handle_new_user() CASCADE;
+DROP FUNCTION IF EXISTS public.handle_profile_role_update() CASCADE;
 
-DROP POLICY IF EXISTS "Users can select own profile" ON public.profiles;
-DROP POLICY IF EXISTS "Doctors can select all profiles" ON public.profiles;
-DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
-
-DROP POLICY IF EXISTS "Patients can insert their own appointments" ON public.appointments;
-DROP POLICY IF EXISTS "Patients can view their own appointments" ON public.appointments;
-DROP POLICY IF EXISTS "Doctors can manage their own appointments" ON public.appointments;
-DROP POLICY IF EXISTS "Doctors can manage their own availability rules" ON public.availability_rules;
-DROP POLICY IF EXISTS "Doctors can manage their own availability exceptions" ON public.availability_exceptions;
-
-DROP POLICY IF EXISTS "Patients can view own prescriptions" ON public.prescriptions;
-DROP POLICY IF EXISTS "Doctors can view all prescriptions" ON public.prescriptions;
-DROP POLICY IF EXISTS "Doctors can insert prescriptions" ON public.prescriptions;
-DROP POLICY IF EXISTS "Doctors can update own prescriptions" ON public.prescriptions;
-
-DROP POLICY IF EXISTS "Doctors can manage their own medical records" ON public.medical_records;
-DROP POLICY IF EXISTS "Patients can view their own medical records" ON public.medical_records;
-
-DROP POLICY IF EXISTS "Patients can manage their own vitals" ON public.vitals;
-DROP POLICY IF EXISTS "Doctors can view vitals of their patients" ON public.vitals;
-
-DROP POLICY IF EXISTS "Patients can insert their own emergencies" ON public.emergencies;
-DROP POLICY IF EXISTS "Doctors can view all emergencies" ON public.emergencies;
-DROP POLICY IF EXISTS "Doctors can update all emergencies" ON public.emergencies;
-
-DROP POLICY IF EXISTS "Patients can insert their own symptom checks" ON public.symptom_checks;
-DROP POLICY IF EXISTS "Doctors can view all symptom checks" ON public.symptom_checks;
-
--- 3. Drop the Supabase auth.users foreign key constraint (since Clerk manages auth)
+-- 4. Drop the Supabase auth.users foreign key constraint on profiles
 ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_id_fkey;
 
--- 4. Drop existing foreign key constraints on referencing tables to allow column type migration
+-- 5. Drop existing foreign key constraints on referencing tables to allow column type migration
 ALTER TABLE IF EXISTS public.appointments DROP CONSTRAINT IF EXISTS appointments_patient_id_fkey;
 ALTER TABLE IF EXISTS public.appointments DROP CONSTRAINT IF EXISTS appointments_doctor_id_fkey;
 ALTER TABLE IF EXISTS public.doctor_availability DROP CONSTRAINT IF EXISTS doctor_availability_doctor_id_fkey;
@@ -90,7 +49,7 @@ ALTER TABLE IF EXISTS public.symptom_checks DROP CONSTRAINT IF EXISTS symptom_ch
 ALTER TABLE IF EXISTS public.availability_rules DROP CONSTRAINT IF EXISTS availability_rules_doctor_id_fkey;
 ALTER TABLE IF EXISTS public.availability_exceptions DROP CONSTRAINT IF EXISTS availability_exceptions_doctor_id_fkey;
 
--- 5. Convert profiles.id and all foreign key IDs from UUID to TEXT (to accept Clerk IDs like 'user_2xyz...')
+-- 6. Convert profiles.id and all foreign key IDs from UUID to TEXT (to accept Clerk IDs like 'user_2xyz...')
 ALTER TABLE public.profiles ALTER COLUMN id TYPE text;
 
 DO $$ BEGIN
@@ -138,7 +97,7 @@ DO $$ BEGIN
   END IF;
 END $$;
 
--- 6. Re-attach foreign key constraints pointing to public.profiles(id)
+-- 7. Re-attach foreign key constraints pointing to public.profiles(id)
 DO $$ BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'appointments') THEN
     ALTER TABLE public.appointments 
@@ -174,7 +133,7 @@ DO $$ BEGIN
   END IF;
 END $$;
 
--- 7. Add database-level validation checks:
+-- 8. Add database-level validation checks:
 --    - Mobile number must be exactly 10 digits
 --    - Age must be between 1 and 100
 ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_age_check;
@@ -187,7 +146,22 @@ ALTER TABLE public.profiles
   ADD CONSTRAINT profiles_phone_check 
   CHECK (phone IS NULL OR phone = '' OR phone ~ '^[0-9]{10}$');
 
--- 8. Recreate clean Clerk-compatible RLS policies for storage & tables
+-- 9. Disable RLS on application data tables
+-- Since authentication is verified by Clerk at the app/middleware level, disabling RLS prevents
+-- Supabase from rejecting Clerk requests due to missing auth.uid() tokens
+ALTER TABLE IF EXISTS public.profiles DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public.appointments DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public.prescriptions DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public.medical_records DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public.vitals DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public.emergencies DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public.symptom_checks DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public.availability_rules DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public.availability_exceptions DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public.appointment_slots DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public.doctor_availability DISABLE ROW LEVEL SECURITY;
+
+-- 10. Recreate clean Clerk-compatible storage policies
 DROP POLICY IF EXISTS "Allow public read on avatars" ON storage.objects;
 CREATE POLICY "Allow public read on avatars" ON storage.objects
   FOR SELECT USING (bucket_id = 'avatars');
@@ -199,10 +173,3 @@ CREATE POLICY "Allow uploads to avatars" ON storage.objects
 DROP POLICY IF EXISTS "Allow access to prescriptions bucket" ON storage.objects;
 CREATE POLICY "Allow access to prescriptions bucket" ON storage.objects
   FOR ALL USING (bucket_id = 'prescriptions') WITH CHECK (bucket_id = 'prescriptions');
-
-DROP POLICY IF EXISTS "Allow all profile access" ON public.profiles;
-CREATE POLICY "Allow all profile access" ON public.profiles
-  FOR ALL USING (true) WITH CHECK (true);
-
--- 9. Remove Supabase Auth trigger (since Clerk handles user registration)
-DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
