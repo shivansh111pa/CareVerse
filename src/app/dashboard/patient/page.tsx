@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/Icons";
 import { NextAppointmentCard } from "@/components/dashboard/patient/NextAppointmentCard";
 import { createClient } from "@/lib/supabase/server";
-import { LogVitalsWrapper } from "@/components/dashboard/patient/LogVitalsWrapper";
 import { PATIENT_QUICK_ACTIONS } from "@/lib/dashboard/nav";
 
 export const dynamic = 'force-dynamic';
@@ -21,22 +20,10 @@ export default async function PatientDashboardPage() {
   const firstName = profile.full_name?.split(" ")[0] || "there";
 
   const supabase = await createClient();
-  let latestVitals = { heart_rate: 0, blood_pressure_systolic: 0, blood_pressure_diastolic: 0, steps: 0 };
   let recentPrescriptions: any[] = [];
   let pastVisits: any[] = [];
 
   if (supabase) {
-    // Fetch latest vitals
-    const { data: vitalsData } = await supabase
-      .from('vitals')
-      .select('*')
-      .eq('patient_id', profile.id)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
-    
-    if (vitalsData) latestVitals = vitalsData;
-
     // Fetch recent prescriptions
     const { data: rxData } = await supabase
       .from('prescriptions')
@@ -93,110 +80,55 @@ export default async function PatientDashboardPage() {
         </div>
       </div>
 
-      {/* Grid Layout */}
+      {/* Welcome Card */}
+      <div className="glass-panel" style={{ padding: "1.5rem", background: "var(--surface-cream)", position: "relative", overflow: "hidden" }}>
+        <h2 style={{ fontSize: "1.35rem", fontWeight: 700, marginBottom: "0.5rem", fontFamily: "var(--font-display)" }}>
+          Good Day, {firstName}!
+        </h2>
+        <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", lineHeight: 1.5, maxWidth: "85%" }}>
+          &quot;Wellness is the complete integration of body, mind, and spirit.&quot; <br/>
+          Have a healthy and productive day.
+        </p>
+      </div>
+
+      {/* Quick Actions */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "1rem" }}>
+        {PATIENT_QUICK_ACTIONS.map((action, i) => (
+          <Link key={i} href={action.href} className="glass-panel hover-lift" style={{ padding: "1.25rem", textDecoration: "none", color: "inherit", display: "flex", flexDirection: "column", gap: "0.5rem", border: "1px solid rgba(255,255,255,0.1)" }}>
+            <div style={{ fontSize: "0.9375rem", fontWeight: 600, color: "var(--accent-aqua)" }}>{action.label}</div>
+            <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{action.description}</div>
+          </Link>
+        ))}
+      </div>
+
+      {/* Sub-grid for Next Appt and Prescriptions */}
       <div className="dashboard-grid">
-        
-        {/* Left Column */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-          
-          {/* Welcome Card */}
-          <div className="glass-panel" style={{ padding: "1.5rem", background: "var(--surface-cream)", position: "relative", overflow: "hidden" }}>
-            <h2 style={{ fontSize: "1.35rem", fontWeight: 700, marginBottom: "0.5rem", fontFamily: "var(--font-display)" }}>
-              Good Day, {firstName}!
-            </h2>
-            <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", lineHeight: 1.5, maxWidth: "85%" }}>
-              &quot;Wellness is the complete integration of body, mind, and spirit.&quot; <br/>
-              Have a healthy and productive day.
-            </p>
-          </div>
+        {/* Next Appointment */}
+        <NextAppointmentCard patientId={profile.id} />
 
-          {/* Quick Actions */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "1rem" }}>
-            {PATIENT_QUICK_ACTIONS.map((action, i) => (
-              <Link key={i} href={action.href} className="glass-panel hover-lift" style={{ padding: "1.25rem", textDecoration: "none", color: "inherit", display: "flex", flexDirection: "column", gap: "0.5rem", border: "1px solid rgba(255,255,255,0.1)" }}>
-                <div style={{ fontSize: "0.9375rem", fontWeight: 600, color: "var(--accent-aqua)" }}>{action.label}</div>
-                <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{action.description}</div>
-              </Link>
-            ))}
-          </div>
-
-          {/* Sub-grid for Next Appt and Prescriptions */}
-          <div className="dashboard-grid">
-            
-            {/* Next Appointment */}
-            <NextAppointmentCard patientId={profile.id} />
-
-            {/* Recent Prescriptions */}
-            <div className="glass-panel" style={{ padding: "1.5rem" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-                <h3 style={{ fontSize: "0.875rem", fontWeight: 700, color: "var(--accent-forest)" }}>
-                  Recent Prescriptions
-                </h3>
-                <Link href="/dashboard/patient/prescriptions" style={{ fontSize: "0.75rem", color: "var(--accent-forest)", fontWeight: 700 }}>View All</Link>
-              </div>
-              
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
-                {recentPrescriptions.length === 0 ? (
-                  <div style={{ fontSize: "0.875rem", color: "var(--text-muted)" }}>No recent prescriptions on file.</div>
-                ) : (
-                  recentPrescriptions.map((rx) => (
-                    <div key={rx.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border-subtle)", paddingBottom: "0.5rem" }}>
-                      <div>
-                        <div style={{ fontSize: "0.9375rem", fontWeight: 600 }}>{rx.medicines?.[0]?.name || rx.prescription?.split('\n')[0] || "Prescription"}</div>
-                        <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Dr. {rx.profiles?.full_name} • {new Date(rx.created_at).toLocaleDateString()}</div>
-                      </div>
-                      <FileTextIcon style={{ width: 16, height: 16, color: "var(--text-muted)" }} />
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        {/* Right Column - Health Vitals */}
-        <div className="glass-panel" style={{ padding: "1.5rem", display: "flex", flexDirection: "column" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-            <h3 style={{ fontSize: "1rem", fontWeight: 700, fontFamily: "var(--font-display)" }}>
-              Health Vitals
+        {/* Recent Prescriptions */}
+        <div className="glass-panel" style={{ padding: "1.5rem" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+            <h3 style={{ fontSize: "0.875rem", fontWeight: 700, color: "var(--accent-forest)" }}>
+              Recent Prescriptions
             </h3>
-            <LogVitalsWrapper patientId={profile.id} />
+            <Link href="/dashboard/patient/prescriptions" style={{ fontSize: "0.75rem", color: "var(--accent-forest)", fontWeight: 700 }}>View All</Link>
           </div>
-
-          <div style={{ flex: 1, position: "relative", minHeight: "180px", borderBottom: "1.5px solid var(--border-subtle)", borderLeft: "1.5px solid var(--border-subtle)", padding: "1rem 0 0 1rem", marginBottom: "2rem" }}>
-            <div style={{ position: "absolute", left: "-25px", top: "0", bottom: "0", display: "flex", flexDirection: "column", justifyContent: "space-between", fontSize: "0.625rem", color: "var(--text-muted)" }}>
-              <span>150</span>
-              <span>120</span>
-              <span>90</span>
-              <span>60</span>
-              <span>30</span>
-              <span>0</span>
-            </div>
-            
-            <svg viewBox="0 0 400 200" preserveAspectRatio="none" style={{ width: "100%", height: "100%" }}>
-              <path d="M0,150 C40,100 60,180 100,120 C140,140 180,60 220,100 C260,160 300,80 340,110 C380,90 400,20 400,20" fill="none" stroke="var(--accent-forest)" strokeWidth="3" />
-              <path d="M0,160 C50,140 80,190 120,140 C160,110 200,90 240,120 C280,180 320,140 360,150 C380,120 400,140 400,140" fill="none" stroke="var(--accent-terracotta)" strokeWidth="2" />
-            </svg>
-
-            <div style={{ position: "absolute", left: "0", right: "0", bottom: "-20px", display: "flex", justifyContent: "space-between", fontSize: "0.625rem", color: "var(--text-muted)" }}>
-              <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
-            </div>
-          </div>
-
-          <div className="responsive-flex-col" style={{ borderTop: "1.5px solid var(--border-subtle)", paddingTop: "1rem", gap: "1.5rem" }}>
-            <div>
-              <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.25rem", fontWeight: 700 }}>Heart Rate</div>
-              <div style={{ fontSize: "1.25rem", fontWeight: 700, fontFamily: "var(--font-display)" }}>{latestVitals.heart_rate || 0} <span style={{ fontSize: "0.75rem", fontWeight: 400, color: "var(--text-muted)" }}>bpm</span></div>
-            </div>
-            <div>
-              <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.25rem", fontWeight: 700 }}>Blood Pressure</div>
-              <div style={{ fontSize: "1.25rem", fontWeight: 700, fontFamily: "var(--font-display)" }}>{latestVitals.blood_pressure_systolic || 0}/{latestVitals.blood_pressure_diastolic || 0} <span style={{ fontSize: "0.75rem", fontWeight: 400, color: "var(--text-muted)" }}>mmHg</span></div>
-            </div>
-            <div>
-              <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.25rem", fontWeight: 700 }}>Steps Today</div>
-              <div style={{ fontSize: "1.25rem", fontWeight: 700, fontFamily: "var(--font-display)" }}>{latestVitals.steps ? latestVitals.steps.toLocaleString() : 0}</div>
-            </div>
+          
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
+            {recentPrescriptions.length === 0 ? (
+              <div style={{ fontSize: "0.875rem", color: "var(--text-muted)" }}>No recent prescriptions on file.</div>
+            ) : (
+              recentPrescriptions.map((rx) => (
+                <div key={rx.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border-subtle)", paddingBottom: "0.5rem" }}>
+                  <div>
+                    <div style={{ fontSize: "0.9375rem", fontWeight: 600 }}>{rx.medicines?.[0]?.name || rx.prescription?.split('\n')[0] || "Prescription"}</div>
+                    <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Dr. {rx.profiles?.full_name} • {new Date(rx.created_at).toLocaleDateString()}</div>
+                  </div>
+                  <FileTextIcon style={{ width: 16, height: 16, color: "var(--text-muted)" }} />
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
