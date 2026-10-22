@@ -279,6 +279,19 @@ export function AuthPanel() {
   const [showReset, setShowReset] = useState(false);
 
   useEffect(() => {
+    // If user arrived on landing page with recovery tokens in hash or query, forward to reset-password immediately!
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash;
+      const search = window.location.search;
+      if (
+        (hash && (hash.includes("type=recovery") || hash.includes("access_token"))) ||
+        (search && (search.includes("type=recovery") || search.includes("reset-password")))
+      ) {
+        window.location.replace(`/auth/reset-password${hash || search}`);
+        return;
+      }
+    }
+
     const authParam = searchParams.get("auth");
     if (authParam === "signup") setTab("signup");
     if (authParam === "login") setTab("login");

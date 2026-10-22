@@ -17,14 +17,36 @@ export default function ResetPasswordPage() {
     const supabase = createClient();
     if (!supabase) return;
 
-    // Check existing session (from callback exchange or cookie)
+    // 1. Process PKCE code exchange or token_hash if present in search parameters
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get("code");
+      const token_hash = urlParams.get("token_hash");
+      const type = urlParams.get("type");
+
+      if (code) {
+        supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
+          if (!error) {
+            setSessionReady(true);
+          }
+        });
+      } else if (token_hash && type) {
+        supabase.auth.verifyOtp({ token_hash, type: type as any }).then(({ error }) => {
+          if (!error) {
+            setSessionReady(true);
+          }
+        });
+      }
+    }
+
+    // 2. Check existing session (from callback exchange or cookie)
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         setSessionReady(true);
       }
     });
 
-    // Also listen for auth state changes (e.g. PASSWORD_RECOVERY event or token hash processing)
+    // 3. Listen for auth state changes (e.g. PASSWORD_RECOVERY event or token hash processing)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "PASSWORD_RECOVERY" || session) {
         setSessionReady(true);

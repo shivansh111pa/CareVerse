@@ -64,5 +64,10 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}${next}`);
   }
 
+  // If this was a reset-password attempt where tokens are stored in the client-side URL hash
+  if (type === "recovery" || next.startsWith("/auth/reset-password")) {
+    return NextResponse.redirect(`${origin}/auth/reset-password`);
+  }
+
   return NextResponse.redirect(`${origin}/?auth=login&error=auth_callback_failed`);
 }
