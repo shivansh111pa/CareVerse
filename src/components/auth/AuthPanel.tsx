@@ -22,6 +22,7 @@ export function AuthPanel() {
 
   // Email verification state
   const [pendingVerification, setPendingVerification] = useState(false);
+  const [verificationType, setVerificationType] = useState<"signup" | "signin_2fa" | "signin_1fa">("signup");
   const [code, setCode] = useState("");
 
   // Forgot password states
@@ -70,6 +71,24 @@ export function AuthPanel() {
       if (result.status === "complete") {
         await setSignInActive({ session: result.createdSessionId });
         window.location.href = "/dashboard";
+      } else if (result.status === "needs_second_factor") {
+        setVerificationType("signin_2fa");
+        const emailFactor = (result.supportedSecondFactors as any[])?.find(
+          (f: any) => f.strategy === "email_code"
+        );
+        if (emailFactor) {
+          await (signIn as any).prepareSecondFactor({ strategy: "email_code" });
+        }
+        setPendingVerification(true);
+      } else if (result.status === "needs_first_factor") {
+        setVerificationType("signin_1fa");
+        const emailFactor = (result.supportedFirstFactors as any[])?.find(
+          (f: any) => f.strategy === "email_code"
+        );
+        if (emailFactor) {
+          await signIn.prepareFirstFactor({ strategy: "email_code", emailAddressId: emailFactor.emailAddressId });
+        }
+        setPendingVerification(true);
       } else {
         console.log("Sign in incomplete", result);
         setError("Sign in requires additional verification.");
@@ -115,6 +134,7 @@ export function AuthPanel() {
       });
 
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+      setVerificationType("signup");
       setPendingVerification(true);
     } catch (err: any) {
       setError(err?.errors?.[0]?.longMessage || err?.errors?.[0]?.message || "Failed to create account.");
@@ -126,17 +146,37 @@ export function AuthPanel() {
   // Handle Verification OTP
   async function handleVerification(e: React.FormEvent) {
     e.preventDefault();
-    if (!isSignUpLoaded) return;
     setError(null);
     setLoading(true);
 
     try {
-      const completeSignUp = await signUp.attemptEmailAddressVerification({ code });
-      if (completeSignUp.status === "complete") {
-        await setSignUpActive({ session: completeSignUp.createdSessionId });
-        window.location.href = "/dashboard";
-      } else {
-        setError("Verification incomplete. Please check the code.");
+      if (verificationType === "signup") {
+        if (!isSignUpLoaded) return;
+        const completeSignUp = await signUp.attemptEmailAddressVerification({ code });
+        if (completeSignUp.status === "complete") {
+          await setSignUpActive({ session: completeSignUp.createdSessionId });
+          window.location.href = "/dashboard";
+        } else {
+          setError("Verification incomplete. Please check the code.");
+        }
+      } else if (verificationType === "signin_2fa") {
+        if (!isSignInLoaded) return;
+        const completeSignIn = await (signIn as any).attemptSecondFactor({ strategy: "email_code", code });
+        if (completeSignIn.status === "complete") {
+          await setSignInActive({ session: completeSignIn.createdSessionId });
+          window.location.href = "/dashboard";
+        } else {
+          setError("Second factor verification incomplete.");
+        }
+      } else if (verificationType === "signin_1fa") {
+        if (!isSignInLoaded) return;
+        const completeSignIn = await (signIn as any).attemptFirstFactor({ strategy: "email_code", code });
+        if (completeSignIn.status === "complete") {
+          await setSignInActive({ session: completeSignIn.createdSessionId });
+          window.location.href = "/dashboard";
+        } else {
+          setError("Verification incomplete.");
+        }
       }
     } catch (err: any) {
       setError(err?.errors?.[0]?.longMessage || err?.errors?.[0]?.message || "Incorrect verification code.");
@@ -631,10 +671,14 @@ export function AuthPanel() {
           <form onSubmit={handleVerification} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             <div style={{ textAlign: "center", marginBottom: "0.5rem" }}>
               <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--accent-forest, #0b5a42)" }}>
-                Verify Your Email
+                {verificationType === "signup" ? "Verify Your Email" : "Security Verification"}
               </h3>
               <p className="text-muted" style={{ fontSize: "0.8125rem", marginTop: "0.25rem" }}>
-                We sent a 6-digit code to <strong>{email}</strong>. Enter it below to complete registration:
+                {verificationType === "signup" ? (
+                  <>We sent a 6-digit code to <strong>{email}</strong>. Enter it below to complete registration:</>
+                ) : (
+                  <>Please enter the 6-digit security code sent to <strong>{email}</strong> to complete sign in:</>
+                )}
               </p>
             </div>
 
@@ -676,7 +720,7 @@ export function AuthPanel() {
               className="btn btn-primary"
               style={{ width: "100%", padding: "0.75rem" }}
             >
-              {loading ? "Verifying…" : "Complete Registration →"}
+              {loading ? "Verifying…" : verificationType === "signup" ? "Complete Registration →" : "Verify & Sign In →"}
             </button>
 
             <button
@@ -688,7 +732,7 @@ export function AuthPanel() {
               }}
               style={{ width: "100%", fontSize: "0.8125rem" }}
             >
-              ← Back to Registration
+              {verificationType === "signup" ? "← Back to Registration" : "← Back to Sign In"}
             </button>
           </form>
         )}
