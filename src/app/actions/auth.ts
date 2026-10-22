@@ -20,7 +20,10 @@ const signupSchema = z.object({
   phone: z
     .string()
     .optional()
-    .transform((v) => (v?.trim() ? v.trim() : undefined)),
+    .transform((v) => (v?.trim() ? v.trim() : undefined))
+    .refine((v) => !v || /^\d{10}$/.test(v), {
+      message: "Mobile number must be exactly 10 digits",
+    }),
 });
 
 const resetSchema = z.object({

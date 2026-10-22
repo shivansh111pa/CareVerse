@@ -59,15 +59,22 @@ export function OnboardingForm() {
         <form action={formAction} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
           <div className="form-field">
             <label className="form-label" htmlFor="phone">
-              Phone Number
+              Phone Number (10 digits)
             </label>
             <input
               id="phone"
               name="phone"
               type="tel"
+              inputMode="numeric"
+              pattern="[0-9]{10}"
+              maxLength={10}
               required
               className="glass-input"
-              placeholder="+91 XXXXX XXXXX"
+              placeholder="10-digit mobile number (e.g. 9876543210)"
+              title="Mobile number must be exactly 10 digits"
+              onInput={(e) => {
+                e.currentTarget.value = e.currentTarget.value.replace(/\D/g, "").slice(0, 10);
+              }}
             />
           </div>
 

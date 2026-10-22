@@ -197,14 +197,22 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
               </div>
 
               <div className="form-field">
-                <label className="form-label" htmlFor="phone">Phone Number</label>
+                <label className="form-label" htmlFor="phone">Phone Number (10 digits)</label>
                 <input 
                   id="phone"
                   name="phone"
                   type="tel"
+                  inputMode="numeric"
+                  pattern="[0-9]{10}"
+                  maxLength={10}
+                  placeholder="10-digit mobile number"
+                  title="Mobile number must be exactly 10 digits"
                   defaultValue={profile.phone || ""}
                   required
                   className="glass-input"
+                  onInput={(e) => {
+                    e.currentTarget.value = e.currentTarget.value.replace(/\D/g, "").slice(0, 10);
+                  }}
                 />
               </div>
             </div>
@@ -212,16 +220,22 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
             {profile.role === "patient" && (
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1.5rem" }}>
                 <div className="form-field">
-                  <label className="form-label" htmlFor="age">Age</label>
+                  <label className="form-label" htmlFor="age">Age (Max 100)</label>
                   <input 
                     id="age"
                     name="age"
                     type="number"
                     defaultValue={profile.age || ""}
                     required
-                    min="0"
-                    max="120"
+                    min="1"
+                    max="100"
+                    placeholder="1 - 100"
+                    title="Age must be between 1 and 100"
                     className="glass-input"
+                    onInput={(e) => {
+                      const v = parseInt(e.currentTarget.value, 10);
+                      if (v > 100) e.currentTarget.value = "100";
+                    }}
                   />
                 </div>
 

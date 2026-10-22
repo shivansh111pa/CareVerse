@@ -37,6 +37,9 @@ export type Database = {
           created_at?: string;
           address?: string | null;
           avatar_url?: string | null;
+          age?: number | null;
+          height?: string | null;
+          weight?: string | null;
         };
         Update: {
           id?: string;
@@ -46,6 +49,9 @@ export type Database = {
           created_at?: string;
           address?: string | null;
           avatar_url?: string | null;
+          age?: number | null;
+          height?: string | null;
+          weight?: string | null;
         };
         Relationships: [];
       };
