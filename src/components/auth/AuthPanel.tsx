@@ -103,7 +103,7 @@ export function AuthPanel() {
   // Handle Sign Up
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault();
-    if (!isSignUpLoaded) return;
+    if (!isSignUpLoaded || !isSignInLoaded || !signIn || !setSignInActive) return;
     setError(null);
 
     // Strict validation
@@ -122,22 +122,33 @@ export function AuthPanel() {
 
     setLoading(true);
     try {
-      const names = fullName.trim().split(" ");
-      const firstName = names[0] || "Patient";
-      const lastName = names.slice(1).join(" ") || "";
-
-      await signUp.create({
-        emailAddress: email,
-        password,
-        firstName,
-        lastName,
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, fullName }),
       });
 
-      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
-      setVerificationType("signup");
-      setPendingVerification(true);
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to create account.");
+      }
+
+      // Automatically sign in immediately with the new account
+      const signInResult = await signIn.create({
+        identifier: email,
+        password: password,
+      });
+
+      if (signInResult.status === "complete") {
+        await setSignInActive({ session: signInResult.createdSessionId });
+        window.location.href = "/dashboard";
+      } else {
+        setVerificationType("signup");
+        setPendingVerification(true);
+      }
     } catch (err: any) {
-      setError(err?.errors?.[0]?.longMessage || err?.errors?.[0]?.message || "Failed to create account.");
+      setError(err?.message || "Failed to create account.");
     } finally {
       setLoading(false);
     }
