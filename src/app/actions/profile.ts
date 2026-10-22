@@ -19,7 +19,7 @@ const onboardingSchema = z.object({
     .min(5, "Address must be at least 5 characters"),
 });
 
-export function parseAndValidateHeight(val?: string | null): { valid: boolean; error?: string } {
+function parseAndValidateHeight(val?: string | null): { valid: boolean; error?: string } {
   if (!val) return { valid: true };
   const trimmed = val.trim();
   if (!trimmed) return { valid: true };
@@ -56,7 +56,7 @@ export function parseAndValidateHeight(val?: string | null): { valid: boolean; e
   return { valid: true };
 }
 
-export function parseAndValidateWeight(val?: string | null): { valid: boolean; error?: string } {
+function parseAndValidateWeight(val?: string | null): { valid: boolean; error?: string } {
   if (!val) return { valid: true };
   const trimmed = val.trim();
   if (!trimmed) return { valid: true };
